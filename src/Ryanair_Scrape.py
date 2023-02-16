@@ -14,7 +14,7 @@ flights = []
 for place in ARIVE:
     for origin in DEPART:
         for date in DATES:
-            URL = f"https://www.ryanair.com/api/booking/v4/nl-nl/availability?ADT=1&CHD=0&DateIn={date}&DateOut={date}&Destination={place}&Disc=0&INF=0&Origin={origin}&IncludeConnectingFlights={INCLUDE_CONNECTING_FLIGHTS}&RoundTrip={ROUND_TRIP}&ToUs=AGREE"
+            URL = f"https://www.ryanair.com/api/booking/v4/nl-nl/availability?ADT=1&CHD=0&DateIn={date}&DateOut={date}&Destination={place}&Disc=0&INF=0&Origin={origin}&IncludeConnectingFlights={INCLUDE_CONNECTING_FLIGHTS}&RoundTrip={ROUND_TRIP}&ToUs=AGREED"
             print(f"Pulling {origin} to {place} on {date}")
             page = requests.get(URL)
 
