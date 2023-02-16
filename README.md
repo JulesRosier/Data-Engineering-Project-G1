@@ -13,3 +13,9 @@ pip install -r .\requirements.txt
 ```
 .\venv\Scripts\activate
 ```
+
+### Adding depenesy
+
+```
+pip freeze > .\requirements.txt
+```
