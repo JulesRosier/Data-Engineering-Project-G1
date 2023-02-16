@@ -7,12 +7,14 @@ from datetime import datetime
 DEPART = ['BRU', 'CRL']
 ARIVE = ['AGP', 'BER', 'LIS']
 DATES = ['2023-03-02', '2023-03-03', '2023-03-04']
+ROUND_TRIP = 'false'
+INCLUDE_CONNECTING_FLIGHTS = 'false'
 
 flights = []
 for place in ARIVE:
     for origin in DEPART:
         for date in DATES:
-            URL = f"https://www.ryanair.com/api/booking/v4/nl-nl/availability?ADT=1&CHD=0&DateIn={date}&DateOut={date}&Destination={place}&Disc=0&INF=0&Origin={origin}&TEEN=0&promoCode=&IncludeConnectingFlights=false&RoundTrip=false&ToUs=AGREED"
+            URL = f"https://www.ryanair.com/api/booking/v4/nl-nl/availability?ADT=1&CHD=0&DateIn={date}&DateOut={date}&Destination={place}&Disc=0&INF=0&Origin={origin}&IncludeConnectingFlights={INCLUDE_CONNECTING_FLIGHTS}&RoundTrip={ROUND_TRIP}&ToUs=AGREE"
             print(f"Pulling {origin} to {place} on {date}")
             page = requests.get(URL)
 
