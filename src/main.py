@@ -5,8 +5,8 @@ import Brussels_Airlines
 
 from pprint import pprint
 
-ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFN']
-NUMBER_OF_DAYS = 1
+ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
+NUMBER_OF_DAYS = 3
 
 dates = get_dates(NUMBER_OF_DAYS)
 
