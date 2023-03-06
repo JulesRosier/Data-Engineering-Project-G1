@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import datetime
-
+DEPART = 'BRU'
 from pprint import pprint
 
 URL = "https://book.brusselsairlines.com/lh/dyn/air-lh/revenue/viewFlights?B_DATE_1={date1}&B_DATE_2={date2}&B_LOCATION_1={depart}&CABIN=E&COUNTRY_SITE=BE&DEVICE_TYPE=DESKTOP&E_LOCATION_1={destination}&IP_COUNTRY=BE&LANGUAGE=GB&NB_ADT=1&NB_CHD=0&NB_INF=0&PORTAL=SN&POS=BE&SECURE=TRUE&SITE=LUFTBRUS&SO_SITE_COUNTRY_OF_RESIDENCE=BE&SO_SITE_LH_FRONTEND_URL=www.brusselsairlines.com&TRIP_TYPE=R"
@@ -24,7 +24,7 @@ def get_data(destionations: list[str], dates: list[datetime.date]) -> dict:
         # date = date.strftime('%Y%m%d0000')
         for plaats in destionations:
             driver.implicitly_wait(100)
-            driver.get(URL.format(depart='BRU',
+            driver.get(URL.format(depart=DEPART,
                                   destination=plaats,
                                   date1=date.strftime('%Y%m%d0000'),
                                   date2=(datetime.timedelta(days=7) + date).strftime('%Y%m%d0000')))
