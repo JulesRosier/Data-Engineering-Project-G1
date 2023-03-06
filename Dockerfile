@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10-bullseye
 
 # Preparing Docker
 RUN pip install --upgrade pip
