@@ -1,10 +1,18 @@
 from peewee import *
 import pymysql
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
 
 DB_NAME = 'flights'
+DB_HOST = os.getenv('DB_HOST')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_PORT = int(os.getenv('DB_PORT'))
 
 
-db = MySQLDatabase(DB_NAME, host='localhost', port = 3306, user='root', password='toor')
+db = MySQLDatabase(DB_NAME, host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
 class Flight(Model):
    airline_name = CharField(max_length=200)
 #    airport_depart = CharField(max_length=100)
@@ -29,7 +37,7 @@ class Flight(Model):
 
 
 def connect_db():
-    conn = pymysql.connect(host='localhost', user='root', password='toor')
+    conn = pymysql.connect(host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
     conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
     conn.close()
 
