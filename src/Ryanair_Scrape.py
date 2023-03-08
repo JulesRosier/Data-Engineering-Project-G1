@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, time
+import decimal
 import requests
 import json
+from repository import Flight
 
 from pprint import pprint
 
@@ -13,6 +15,7 @@ URL = "https://www.ryanair.com/api/booking/v4/nl-nl/availability?ADT=1&CHD=0&Dat
 
 
 def get_data(arive, dates) -> dict:
+    # Flight.create(flight_key='aaaaaaaaa')
     flights = []
     for place in arive:
         for origin in DEPART:
@@ -44,9 +47,22 @@ def get_data(arive, dates) -> dict:
                         out['price'] = flight_data['regularFare']['fares'][0]['amount']
                         out['faresLeft'] = flight_data['faresLeft']
                         # aantal stops - segments tellen?
+                        
+                        Flight.create(airline_name        = 'Ryanair',
+                                   airport_code_depart    = flight['origin'],
+                                   airport_code_arrival   = flight['destination'],
+                                   datetime_depart        = datetime.fromisoformat(flight_data['time'][0]),
+                                   datetime_arrival       = datetime.fromisoformat(flight_data['time'][1]),
+                                   flight_duration        = time.fromisoformat(flight_data['duration']+':00'),
+                                   ticket_price           = decimal.Decimal(flight_data['regularFare']['fares'][0]['amount']),
+                                   number_seats_total     = 0,
+                                   number_seats_available = int(flight_data['faresLeft']),
+                                   number_of_stops        = 0,
+                                   flight_key             = flight_data['flightKey'],
+                                   flight_number          = flight_data['flightNumber']
+                                )
                         flights.append(out)
-
-                    except:
-                        print('iets ging miss')
+                    except Exception as ex:
+                        print('iets ging mis')
 
     return (flights)
