@@ -22,7 +22,6 @@ def set_chrome_options() -> None:
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     return chrome_options
 
-
 def get_driver():
     # options.add_experimental_option("detach", True)
     options = set_chrome_options()
