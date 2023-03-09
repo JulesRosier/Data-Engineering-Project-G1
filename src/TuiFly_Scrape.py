@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, date, time
 import requests
 import json
 import re
@@ -14,11 +14,24 @@ def parse_flight(json_data):
     flights = []
     for flight in json_data['flightViewData']:
         out = {}
-
-        out['destination'] = flight['journeySummary']['arrivalAirportName']
-        out['depart'] = flight['journeySummary']['departAirportName']
-        out['date'] = datetime.fromisoformat(flight['departureDate']).strftime("%Y-%m-%d")
+        
+        depdate = date.fromisoformat(flight['journeySummary']['departDate'])
+        deptime = time.fromisoformat(flight['journeySummary']['depTime'] + ':00') 
+        arrivaldate = date.fromisoformat(flight['journeySummary']['arrivalDate'])
+        arrivaltime = time.fromisoformat(flight['journeySummary']['arrivalTime'] + ':00')
+        
+        out['depart'] = flight['journeySummary']['departAirportCode']
+        out['departLocation'] = flight['journeySummary']['departAirportName']
+        out['destination'] = flight['journeySummary']['arrivalAirportCode']
+        out['destinationLocation'] = flight['journeySummary']['arrivalAirportName']
+        out['departure_datetime'] = datetime.combine(depdate, deptime).strftime("%Y-%m-%d %H:%M:%S")
+        out['arrival_datetime'] = datetime.combine(arrivaldate, arrivaltime).strftime("%Y-%m-%d %H:%M:%S") 
+        out['duration'] = flight['journeySummary']['totalJnrDuration']
+        # out['flightKey'] = 
+        out['flightNumber'] = flight['flightsectors'][0]['flightNumber']
         out['price'] = flight['totalPrice']
+        out['availableSeats'] = flight['journeySummary']['availableSeats']
+        # out['numberOfStops'] = 
 
         flights.append(out)
     return flights
