@@ -1,4 +1,5 @@
 from pprint import pprint
+from datetime import timedelta
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
@@ -50,16 +51,36 @@ def get_data(destionations: list[str], dates: list[datetime.date]) -> dict:
 
             # pprint(data)
             try:
-                pprint(data['arrivalLocation'])
+                # pprint(data['arrivalLocation'])
                 for flight in data['availabilities']:
-                    out = {}
-                    out['destination'] = data['arrivalLocation']['airport']['name']
-                    out['depart'] = flight['segments'][0]['departureLocation']['airport']['name']
-                    out['date'] = flight['segments'][0]['formattedDepartureDate']
-                    out['price'] = flight['cabins'][0]['fares'][0]['price']
-                    out['operating_airline'] = flight['segments'][0]['operatingAirline']['name']
+                    operating_airline = flight['segments'][0]['operatingAirline']['name']
+                    if operating_airline == 'Brussels Airlines':
+                        out = {}
+                        
+                        duration_min = flight['segments'][0]['duration']
+                        
+                        departure_time_string = flight['segments'][0]['formattedDepartureDate']
+                        arrival_time_string =  flight['segments'][0]['formattedArrivalDate']
+                        
+                        segments = flight['segments']
 
-                    flights.append(out)
+                        out['departCode'] = data['departureLocation']['airport']['code']
+                        out['departLocation'] = data['departureLocation']['city']['name']
+                        out['destinationCode'] = data['arrivalLocation']['airport']['code']
+                        out['destinationLocation'] = data['arrivalLocation']['city']['name']
+                        out['departureTime'] = datetime.strptime(departure_time_string, '%A, %d.%m.%Y %I:%M %p') 
+                        out['arrivalTime'] = datetime.strptime(arrival_time_string, '%A, %d.%m.%Y %I:%M %p') 
+                        out['duration'] = datetime.timedelta(minutes = duration_min)
+                        # out['flightKey'] = zelf genereren, flightNumber + departureTime?
+                        out['flightNumber'] = flight['segments'][0]['flightNumber']
+                        out['price'] = flight['cabins'][0]['fares'][0]['price'] # Meerdere soorten Economy ! (4)
+                        # out ['numberSeatsTotal] = None
+                        out['numberSeatsAvailable'] = flight['cabins'][0]['fares'][0]['numberOfSeatsLeft']
+                        out['numberOfStops'] = len(segments) - 1        
+                        out['connectionFlight'] = len(segments) > 1
+                        out['operating_airline'] = flight['segments'][0]['operatingAirline']['name']
+                        
+                        flights.append(out)
             except:
                 try:
                     error_div = driver.find_element(

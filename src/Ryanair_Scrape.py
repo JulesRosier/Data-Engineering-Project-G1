@@ -45,7 +45,6 @@ def get_data(arive, dates) -> dict:
                     # out['flightNumber'] = flight_data['flightNumber']
                     # out['price'] = flight_data['regularFare']['fares'][0]['amount']
                     # out['faresLeft'] = flight_data['faresLeft']
-                    # aantal stops - segments tellen?
 
                     if Flight.select().where(Flight.flight_key == flight_data['flightKey']).exists():
                         pprint('Flight bestaat al')
