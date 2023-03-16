@@ -42,8 +42,6 @@ def get_data(arive, dates) -> dict:
                         flight_obj.airline_id             = 1
                         flight_obj.airport_code_depart    = flight['origin']
                         flight_obj.airport_code_arrival   = flight['destination']
-                        flight_obj.airport_depart         = flight['originName']
-                        flight_obj.airport_arrival        = flight['destinationName']
                         flight_obj.datetime_depart        = datetime.fromisoformat(flight_data['time'][0])
                         flight_obj.datetime_arrival       = datetime.fromisoformat(flight_data['time'][1])
                         flight_obj.flight_duration        = time.fromisoformat(flight_data['duration']+':00')

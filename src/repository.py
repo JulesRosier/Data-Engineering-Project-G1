@@ -48,8 +48,8 @@ class Flight(Model):
    ticket_price = DecimalField(decimal_places=2)
    number_seats_total = IntegerField(null=True)
    number_seats_available = IntegerField()
-   number_of_stops = IntegerField()
-   connection_flight = BooleanField()
+   number_of_stops = IntegerField(null=True)
+   connection_flight = BooleanField(null=True)
    flight_key = CharField(max_length=300, primary_key=True)
    flight_number = CharField(max_length=20)
 

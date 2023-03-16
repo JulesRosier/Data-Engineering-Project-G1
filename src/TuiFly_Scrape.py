@@ -3,6 +3,8 @@ from datetime import datetime, date, time
 import requests
 import json
 import re
+
+from repository import Flight
 # from pprint import pprint
 
 # CONSTS
@@ -15,25 +17,52 @@ def parse_flight(json_data):
     for flight in json_data['flightViewData']:
         out = {}
         
-        depdate = date.fromisoformat(flight['journeySummary']['departDate'])
-        deptime = time.fromisoformat(flight['journeySummary']['depTime'] + ':00') 
-        arrivaldate = date.fromisoformat(flight['journeySummary']['arrivalDate'])
-        arrivaltime = time.fromisoformat(flight['journeySummary']['arrivalTime'] + ':00')
-        
-        out['depart'] = flight['journeySummary']['departAirportCode']
-        out['departLocation'] = flight['journeySummary']['departAirportName']
-        out['destination'] = flight['journeySummary']['arrivalAirportCode']
-        out['destinationLocation'] = flight['journeySummary']['arrivalAirportName']
-        out['departure_datetime'] = datetime.combine(depdate, deptime).strftime("%Y-%m-%d %H:%M:%S")
-        out['arrival_datetime'] = datetime.combine(arrivaldate, arrivaltime).strftime("%Y-%m-%d %H:%M:%S") 
-        out['duration'] = flight['journeySummary']['totalJnrDuration']
-        # out['flightKey'] = 
-        out['flightNumber'] = flight['flightsectors'][0]['flightNumber']
-        out['price'] = flight['totalPrice']
-        out['availableSeats'] = flight['journeySummary']['availableSeats']
-        # out['numberOfStops'] = 
 
-        flights.append(out)
+        try:
+            depdate = date.fromisoformat(flight['journeySummary']['departDate'])
+            deptime = time.fromisoformat(flight['journeySummary']['depTime'] + ':00') 
+            arrivaldate = date.fromisoformat(flight['journeySummary']['arrivalDate'])
+            arrivaltime = time.fromisoformat(flight['journeySummary']['arrivalTime'] + ':00')
+
+            f_flightNumber = flight['flightsectors'][0]['flightNumber']
+            f_depart = flight['journeySummary']['departAirportCode']
+            f_destination = flight['journeySummary']['arrivalAirportCode']
+            f_departure_datetime = datetime.combine(depdate, deptime).strftime("%Y-%m-%d %H:%M:%S")
+            f_arrival_datetime = datetime.combine(arrivaldate, arrivaltime).strftime("%Y-%m-%d %H:%M:%S") 
+
+            f_key = f_flightNumber + f_depart + f_departure_datetime + f_destination + f_arrival_datetime
+
+            f_duration_s = flight['journeySummary']['totalJnrDuration']
+            f_duration_h, f_duration_min = f_duration_s.split(' ')
+
+            if Flight.select().where(Flight.flight_key == f_key).exists():
+                flight_obj = Flight.get(flight_key = f_key)
+                bestaal_all = True
+            else:
+                flight_obj = Flight(flight_key = f_key)
+                bestaal_all = False
+
+            flight_obj.last_updated           = datetime.now()
+            flight_obj.airline_id             = 3
+            flight_obj.airport_code_depart    = flight['journeySummary']['departAirportCode']
+            flight_obj.airport_code_arrival   = flight['journeySummary']['arrivalAirportCode']
+            flight_obj.datetime_depart        = datetime.combine(depdate, deptime)
+            flight_obj.datetime_arrival       = datetime.combine(arrivaldate, arrivaltime)
+            flight_obj.flight_duration        = time(hour=int(f_duration_h[:-1]), minute=int(f_duration_min[:-1]))
+            flight_obj.ticket_price           = flight['totalPrice']
+            flight_obj.number_seats_total     = None
+            flight_obj.number_seats_available = flight['journeySummary']['availableSeats']
+            flight_obj.number_of_stops        = None
+            flight_obj.connection_flight      = None
+            flight_obj.flight_number          = flight['flightsectors'][0]['flightNumber']
+
+            if bestaal_all:
+                flight_obj.save()
+            else:
+                flight_obj.save(force_insert=True)
+
+        except Exception as e: print(e)
+
     return flights
 
 def get_data(destionations, dates):
