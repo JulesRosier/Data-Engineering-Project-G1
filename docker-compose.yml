@@ -6,17 +6,17 @@ services:
     build:
       context: .
     depends_on:
-      - mysql_database
+      - mysql
     restart: unless-stopped
     environment:
-      DB_HOST: mysql_database
+      DB_HOST: mysql
       DB_PORT: 3306
       DB_NAME: flights
       DB_USER: root
-      DB_PASS: root
+      DB_PASSWORD: root
       
   mysql:
-    container_name: mysql_database
+    container_name: mysql
     image: mysql:8
     command: --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
@@ -25,3 +25,5 @@ services:
       MYSQL_DATABASE: flights
       MYSQL_USER: root
       MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
