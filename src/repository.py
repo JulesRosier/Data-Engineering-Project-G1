@@ -14,7 +14,7 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_PORT = int(os.getenv('DB_PORT'))
 
-
+print(DB_HOST, DB_USER, DB_PASSWORD, DB_PORT)
 db = MySQLDatabase(DB_NAME, host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
 
 class Airline(Model):
