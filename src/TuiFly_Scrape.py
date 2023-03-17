@@ -16,7 +16,6 @@ def parse_flight(json_data):
     flights = []
     for flight in json_data['flightViewData']:
         out = {}
-        
 
         try:
             depdate = date.fromisoformat(flight['journeySummary']['departDate'])
