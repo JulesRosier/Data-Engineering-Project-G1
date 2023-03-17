@@ -11,8 +11,8 @@ services:
     environment:
       DB_HOST: "mysql_db"
       DB_PORT: "3306"
-      DB_USER: "root_niet"
-      DB_PASSWORD: "woorden123"
+      DB_USER: "root"
+      DB_PASSWORD: "root_test123"
     networks:
       - main
 
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_USER: "root"
-      MYSQL_ROOT_PASSWORD: "root_test"
+      MYSQL_ROOT_PASSWORD: "root_test123"
       MYSQL_USER: "root_niet"
       MYSQL_PASSWORD: "woorden123"
       MYSQL_TCP_PORT: 3306

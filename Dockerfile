@@ -9,7 +9,7 @@ RUN pip install -r requirements.txt
 COPY ./src /app
 WORKDIR /app
 
-COPY ../entrypoint.sh /
+COPY ./entrypoint.sh /
 ENTRYPOINT ["sh", "/entrypoint.sh"]
 
 # Installing Google Chrome
