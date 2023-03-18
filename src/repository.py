@@ -22,7 +22,11 @@ conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
 conn.close()
 db = MySQLDatabase(DB_NAME, host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
 
-class Airline(Model):
+class BaseModel(Model):
+   class Meta:
+      Database = db
+
+class Airline(BaseModel):
    id = IntegerField(primary_key=True)
    name = CharField(max_length=100)
 
@@ -31,7 +35,7 @@ class Airline(Model):
       db_table='airlines'
 
 
-class Airport(Model):
+class Airport(BaseModel):
    code = CharField(max_length=5, primary_key=True)
    full_name = CharField(max_length=200, null=True)
 
@@ -39,7 +43,7 @@ class Airport(Model):
       database=db
       db_table='airports'
 
-class Flight(Model):
+class Flight(BaseModel):
    last_updated = DateTimeField(default=datetime.datetime.now)
 
    airline_id = ForeignKeyField(Airline, null=True)
@@ -63,8 +67,6 @@ class Flight(Model):
       db_table='flights'
 
 def connect_db():
-
-    db.connect()
     db.create_tables([Airline, Airport, Flight])  
 
 
