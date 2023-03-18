@@ -13,8 +13,6 @@ services:
       DB_PORT: "3306"
       DB_USER: "root"
       DB_PASSWORD: "root_test123"
-    networks:
-      - main
 
   mysql_db:
     container_name: mysql_db
@@ -29,8 +27,3 @@ services:
       MYSQL_TCP_PORT: 3306
     ports:
       - "3306:3306"
-    networks:
-      - main
-
-networks:
-  main:
