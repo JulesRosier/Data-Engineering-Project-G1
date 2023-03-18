@@ -1,8 +1,10 @@
+import requests
 from dates import get_dates
 import TuiFly_Scrape
 import Ryanair_Scrape
 import Brussels_Airlines
 from repository import connect_db, close_db, seed_db
+import time
 
 from pprint import pprint
 
@@ -10,6 +12,14 @@ ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', '
 NUMBER_OF_DAYS = 10
 
 dates = get_dates(NUMBER_OF_DAYS)
+time.sleep(5)
+
+res = requests.get('https://kernel.org/')
+if (res.status_code):
+    print('Success, internet')
+else:
+    raise Exception("Geen internet")
+
 
 connect_db()
 seed_db()

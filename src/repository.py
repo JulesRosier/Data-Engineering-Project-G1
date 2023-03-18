@@ -5,6 +5,7 @@ import pymysql
 from dotenv import load_dotenv
 import requests
 import os
+import time
 
 load_dotenv()
 
@@ -15,6 +16,10 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_PORT = int(os.getenv('DB_PORT'))
 
 print(DB_HOST, DB_USER, DB_PASSWORD, DB_PORT)
+time.sleep(3)
+conn = pymysql.connect(host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
+conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
+conn.close()
 db = MySQLDatabase(DB_NAME, host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
 
 class Airline(Model):
@@ -58,9 +63,6 @@ class Flight(Model):
       db_table='flights'
 
 def connect_db():
-    conn = pymysql.connect(host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
-    conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
-    conn.close()
 
     db.connect()
     db.create_tables([Airline, Airport, Flight])  
