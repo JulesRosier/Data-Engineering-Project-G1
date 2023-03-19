@@ -26,3 +26,8 @@ pip freeze > .\requirements.txt
 ```
 ssh vicuser@vichogent.be -p 40059
 ```
+
+### Port forward voor DB
+```
+ssh -N -L 3333:127.0.0.1:3306 vicuser@vichogent.be -p 40059
+```
