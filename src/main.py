@@ -20,14 +20,13 @@ if (res.status_code):
 else:
     raise Exception("Geen internet")
 
-
 connect_db()
 seed_db()
 
-pprint(TuiFly_Scrape.get_data(ARIVE, dates))
+# pprint(TuiFly_Scrape.get_data(ARIVE, dates))
 
 # Ryanair_Scrape.get_data(ARIVE, dates)
 
-# pprint(Brussels_Airlines.get_data(ARIVE, dates))
+pprint(Brussels_Airlines.get_data(ARIVE, dates))
 
 close_db()

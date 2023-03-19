@@ -2,7 +2,8 @@
 
 ## Dev setup
 
-### setup venv
+### Setup venv
+
 ```
 python -m venv venv
 pip install -r .\requirements.txt
@@ -14,8 +15,14 @@ pip install -r .\requirements.txt
 .\venv\Scripts\activate
 ```
 
-### Adding depenesy
+### Adding dependency
 
 ```
 pip freeze > .\requirements.txt
+```
+
+### SSH naar server
+
+```
+ssh vicuser@vichogent.be -p 40059
 ```
