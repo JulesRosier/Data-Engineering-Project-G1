@@ -12,7 +12,7 @@ ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', '
 NUMBER_OF_DAYS = 10
 
 dates = get_dates(NUMBER_OF_DAYS)
-time.sleep(5)
+# time.sleep(5)
 
 res = requests.get('https://kernel.org/')
 if (res.status_code):

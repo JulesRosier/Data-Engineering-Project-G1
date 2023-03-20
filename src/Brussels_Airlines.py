@@ -3,7 +3,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import datetime, time
+import datetime
+import time
 from selenium_stealth import stealth
 
 DEPART = 'BRU'
@@ -82,9 +83,10 @@ def get_data(destinations: list[str], dates: list[datetime.date]) -> dict:
                         out['destinationCode'] = data['arrivalLocation']['airport']['code']
                         out['destinationLocation'] = data['arrivalLocation']['city']['name']
                         
-                        # out['departureTime'] = 
-                        # out['arrivalTime'] =  
-                        # out['duration'] =
+
+                        out['departureTime'] = datetime.datetime.strptime(departure_time_string.split(' ')[1] + ' ' + departure_time_string.split(' ')[2], '%d.%m.%Y %H:%M')
+                        out['arrivalTime'] = datetime.datetime.strptime(arrival_time_string.split(' ')[1] + ' ' + arrival_time_string.split(' ')[2], '%d.%m.%Y %H:%M')
+                        out['duration'] = datetime.time(hour=duration_min//60, minute=duration_min%60)
 
                         # out['flightKey'] = zelf genereren, flightNumber + departureTime?
                         
