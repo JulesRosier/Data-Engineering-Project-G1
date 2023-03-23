@@ -12,7 +12,7 @@ from pprint import pprint
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
 NUMBER_OF_DAYS = 10
 
-# zorgt er voor dat de code alleen maar runned als ge explisiet main.py uitvoert
+# zorgt er voor dat de code alleen maar loopt als je expliciet main.py uitvoert
 if __name__ == "__main__": 
     print(f"Running script at {datetime.datetime.now()}")
     dates = get_dates(NUMBER_OF_DAYS)

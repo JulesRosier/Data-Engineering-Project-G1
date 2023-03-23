@@ -3,6 +3,9 @@ from datetime import datetime, date, time
 import requests
 import json
 import re
+import random
+from requests.exceptions import Timeout
+from proxies import get_valid_proxy
 
 from repository import Flight
 # from pprint import pprint
@@ -36,10 +39,10 @@ def parse_flight(json_data):
 
             if Flight.select().where(Flight.flight_key == f_key).exists():
                 flight_obj = Flight.get(flight_key = f_key)
-                bestaal_all = True
+                bestaat_all = True
             else:
                 flight_obj = Flight(flight_key = f_key)
-                bestaal_all = False
+                bestaat_all = False
 
             flight_obj.last_updated           = datetime.now()
             flight_obj.airline_id             = 3
@@ -55,7 +58,7 @@ def parse_flight(json_data):
             flight_obj.connection_flight      = None
             flight_obj.flight_number          = flight['flightsectors'][0]['flightNumber']
 
-            if bestaal_all:
+            if bestaat_all:
                 flight_obj.save()
             else:
                 flight_obj.save(force_insert=True)
@@ -64,23 +67,21 @@ def parse_flight(json_data):
 
     return flights
 
-def get_data(destionations, dates):
+timeout = 10
+
+def get_data(destinations, dates):
     flights = []
     for depart in DEPARTS:
         for date in dates:
-            for destionation in destionations:
-                print(f'Pulling {depart} to {destionation} on {date}')
-                page = requests.get(URL.format(origin=depart, place=destionation, date=date), headers=HEADER, timeout=10)
+            for destination in destinations:
+                print(f'Pulling {depart} to {destination} on {date}')
+                proxy = get_valid_proxy()
+                page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, proxies={"http": proxy}, timeout=timeout)
                 soup = BeautifulSoup(page.content, "lxml")
                 script = soup.find(string=re.compile("var searchResultsJson"))
-                try:
-                    for row in script.splitlines():
-                        if row.find("var searc") > 0:
-                            json_string = row[row.find('{'):][:-1]
-                            json_data = json.loads(json_string)
-                            flights = flights + (parse_flight(json_data))
-                except:
-                    print('iets ging miss')
+                for row in script.splitlines():
+                    if row.find("var searc") > 0:
+                        json_string = row[row.find('{'):][:-1]
+                        json_data = json.loads(json_string)
+                        flights += parse_flight(json_data)
     return flights
-
-
