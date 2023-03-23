@@ -70,7 +70,7 @@ def get_data(destionations, dates):
         for date in dates:
             for destionation in destionations:
                 print(f'Pulling {depart} to {destionation} on {date}')
-                page = requests.get(URL.format(origin=depart, place=destionation, date=date), headers=HEADER)
+                page = requests.get(URL.format(origin=depart, place=destionation, date=date), headers=HEADER, timeout=10)
                 soup = BeautifulSoup(page.content, "lxml")
                 script = soup.find(string=re.compile("var searchResultsJson"))
                 try:

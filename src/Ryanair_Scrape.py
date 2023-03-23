@@ -20,7 +20,7 @@ def get_data(arive, dates) -> dict:
             for date in dates:
                 print(f"Pulling {origin} to {place} on {date}")
                 page = requests.get(URL.format(
-                    date=date, place=place, origin=origin))
+                    date=date, place=place, origin=origin), timeout=10)
                 soup = BeautifulSoup(page.content, "lxml")
                 result = soup.find("p").text
                 json_reponse = json.loads(result)

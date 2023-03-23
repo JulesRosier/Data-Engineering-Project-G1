@@ -1,3 +1,4 @@
+import datetime
 import requests
 from dates import get_dates
 import TuiFly_Scrape
@@ -11,22 +12,25 @@ from pprint import pprint
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
 NUMBER_OF_DAYS = 10
 
-dates = get_dates(NUMBER_OF_DAYS)
-# time.sleep(5)
+# zorgt er voor dat de code alleen maar runned als ge explisiet main.py uitvoert
+if __name__ == "__main__": 
+    print(f"Running script at {datetime.datetime.now()}")
+    dates = get_dates(NUMBER_OF_DAYS)
+    # time.sleep(5)
 
-res = requests.get('https://kernel.org/')
-if (res.status_code):
-    print('Success, internet')
-else:
-    raise Exception("Geen internet")
+    res = requests.get('https://kernel.org/')
+    if (res.status_code):
+        print('Success, internet')
+    else:
+        raise Exception("Geen internet")
 
-connect_db()
-seed_db()
+    connect_db()
+    seed_db()
 
-# pprint(TuiFly_Scrape.get_data(ARIVE, dates))
+    pprint(TuiFly_Scrape.get_data(ARIVE, dates))
 
-# Ryanair_Scrape.get_data(ARIVE, dates)
+    # Ryanair_Scrape.get_data(ARIVE, dates)
 
-pprint(Brussels_Airlines.get_data(ARIVE, dates))
+    # pprint(Brussels_Airlines.get_data(ARIVE, dates))
 
-close_db()
+    close_db()
