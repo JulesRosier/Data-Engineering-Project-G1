@@ -6,11 +6,17 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY ./src /app
-WORKDIR /app
 
-COPY ./crontab /etc/cron.d/crontab
-RUN /usr/bin/crontab /etc/cron.d/crontab
+
+ADD crontab /etc/cron.d/hello-cron
+RUN touch /var/log/cron.log
+RUN chmod 0644 /etc/cron.d/hello-cron
+
+RUN apt-get update
+RUN apt-get -y install cron
+
+COPY entrypoint.sh /entrypoint.sh
+COPY ./src /app
 
 # Installing Google Chrome
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
@@ -24,4 +30,5 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 # Set display port as an environment variable
 ENV DISPLAY=:99
 
-CMD ["cron", "-f"]
+ENTRYPOINT ["sh", "/entrypoint.sh"]
+CMD cron && tail -f /var/log/cron.log
