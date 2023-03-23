@@ -1,7 +1,7 @@
 import requests
 import random
 
-with open("proxies.txt", "r") as file:
+with open("./src/proxies.txt", "r") as file:
     proxies = file.read().splitlines()
 print(proxies)
 
