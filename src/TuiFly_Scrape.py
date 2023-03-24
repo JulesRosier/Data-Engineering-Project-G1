@@ -67,7 +67,7 @@ def parse_flight(json_data):
 
     return flights
 
-timeout = 10
+timeout = 30
 
 def get_data(destinations, dates):
     flights = []
