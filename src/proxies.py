@@ -45,16 +45,16 @@ PROXIES = [
 
 timeout = 10
 
-def get_valid_proxy(timeout=timeout, retries=5):
+def get_valid_proxy(timeout=timeout, retries=10):
     random.shuffle(PROXIES)
     for proxy in PROXIES:
         retries_left = retries
         while retries_left > 0:
             try:
-                response = requests.get('https://www.google.com', proxies={'http': proxy}, timeout=timeout)
+                response = requests.get('https://www.google.com', proxies=proxy, timeout=timeout)
                 if response.status_code == 200:
                     return proxy
-            except (requests.exceptions.Timeout, requests.exceptions.ProxyError):
-                pass
+            except (requests.exceptions.Timeout, requests.exceptions.ProxyError) as e:
+                print("Error:", e)
             retries_left -= 1
     raise ValueError('No valid proxies found.')

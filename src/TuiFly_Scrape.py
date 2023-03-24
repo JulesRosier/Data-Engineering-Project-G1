@@ -77,7 +77,7 @@ def get_data(destinations, dates):
                 print(f'Pulling {depart} to {destination} on {date}')
                 proxy = get_valid_proxy()
                 print(proxy)
-                page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, proxies={"http": proxy}, timeout=timeout)
+                page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, proxies=proxy, timeout=timeout)
                 soup = BeautifulSoup(page.content, "lxml")
                 script = soup.find(string=re.compile("var searchResultsJson"))
                 for row in script.splitlines():
