@@ -1,2 +1,6 @@
 * * * * * root bash -l -c "/usr/local/bin/python -u /app/main.py" >> /var/log/cron.log 2>&1
 # Don't remove the empty line at the end of this file. It is required to run the cron job
+
+eerst touch /home/vicuser/cron.log
+0 1 * * * /usr/bin/python3 /home/vicuser/Data-Engineering-Project-G1/src/main.py TuiFly_Scrape >> /home/vicuser/cron.log 2>&1
+0 15 * * * /usr/bin/python3 /home/vicuser/Data-Engineering-Project-G1/src/main.py Ryanair_Scrape >> /home/vicuser/cron.log 2>&1
