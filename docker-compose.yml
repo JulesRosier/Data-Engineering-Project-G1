@@ -29,3 +29,6 @@ services:
       - type: volume
         source: mysqlvol
         target: /var/lib/mysql
+
+volumes:
+  mysqlvol:
