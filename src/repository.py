@@ -16,7 +16,6 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_PORT = int(os.getenv('DB_PORT'))
 
 print(DB_HOST, DB_USER, DB_PASSWORD, DB_PORT)
-time.sleep(3)
 conn = pymysql.connect(host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
 conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
 conn.close()
@@ -44,31 +43,41 @@ class Airport(BaseModel):
       db_table='airports'
 
 class Flight(BaseModel):
-   last_updated = DateTimeField(default=datetime.datetime.now)
+   flight_key = CharField(max_length=300, primary_key=True)
 
    airline_id = ForeignKeyField(Airline, null=True)
-
    airport_code_depart = ForeignKeyField(Airport)
    airport_code_arrival = ForeignKeyField(Airport)
 
-   datetime_depart = DateTimeField()
-   datetime_arrival = DateTimeField()
    flight_duration = TimeField()
-   ticket_price = DecimalField(decimal_places=2)
+
    number_seats_total = IntegerField(null=True)
-   number_seats_available = IntegerField()
    number_of_stops = IntegerField(null=True)
    connection_flight = BooleanField(null=True)
-   flight_key = CharField(max_length=300, primary_key=True)
    flight_number = CharField(max_length=20)
 
    class Meta:
       database=db
       db_table='flights'
 
-def connect_db():
-    db.create_tables([Airline, Airport, Flight])  
+class FlightData(BaseModel):
+   id = AutoField()
+   flight_key = ForeignKeyField(Flight)
 
+   datetime_scraped = DateTimeField(default=datetime.datetime.now)
+
+   number_seats_available = IntegerField(null=True)
+   ticket_price = DecimalField(decimal_places=2)
+
+   datetime_depart = DateTimeField()
+   datetime_arrival = DateTimeField()
+
+   class Meta:
+      database=db
+      db_table='flight_data'
+
+def connect_db():
+    db.create_tables([Airline, Airport, Flight, FlightData])  
 
 
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
@@ -80,7 +89,7 @@ def seed_db():
    Airline.get_or_create(id = 1, name ='Ryanair')
    Airline.get_or_create(id = 2, name ='BrusselsAirline')
    Airline.get_or_create(id = 3, name ='TuiFly')
-   Airline.get_or_create(id = 4, name ='Transavia')
+   # Airline.get_or_create(id = 4, name ='Transavia')
 
    for a in (ARIVE + DEPART):
       if not Airport.select().where(Airport.code == a).exists():
