@@ -64,7 +64,6 @@ def parse_flight(json_data):
 
         except Exception as e: print(e)
 
-
 timeout = 15
 
 def get_data(destinations, dates):

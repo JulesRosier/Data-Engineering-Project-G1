@@ -11,7 +11,7 @@ import sys
 from pprint import pprint
 
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
-NUMBER_OF_DAYS = 10
+NUMBER_OF_DAYS = 185 # tot en met 1 oktober
 
 # zorgt er voor dat de code alleen maar loopt als je expliciet main.py uitvoert
 if __name__ == "__main__": 
@@ -33,15 +33,14 @@ if __name__ == "__main__":
     connect_db()
     seed_db()
 
-    if script == "TuiFly_Scrape":
+    if script == "tuifly":
         TuiFly_Scrape.get_data(ARIVE, dates)
         
-    if script == "Ryanair_Scrape":
+    if script == "ryanair":
         Ryanair_Scrape.get_data(ARIVE, dates)
 
-    if script == "Brussels_Airlines":
+    if script == "brussels":
         pass
         # Brussels_Airlines.get_data(ARIVE, dates)
-
 
     close_db()
