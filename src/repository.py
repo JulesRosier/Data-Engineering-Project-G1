@@ -105,6 +105,17 @@ def seed_db():
             full_name = response.content.decode("utf-8")[1:-1]
          Airport.create(code = a,
                         full_name = full_name)
+      else:
+         airport_obj = Airport.select().where(Airport.code == a)
+         if airport_obj.full_name == None:
+            response = requests.get(URL.format(code=a), headers=HEADER)
+            full_name = None
+            if response.status_code == 200:
+               full_name = response.content.decode("utf-8")[1:-1]
+            airport_obj.full_name = full_name
+            airport_obj.save()
+         
+
 
 def close_db():
    db.close()
