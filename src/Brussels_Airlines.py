@@ -95,10 +95,7 @@ def get_data(destinations: list[str], dates: list[datetime.date]) -> dict:
                         flight_obj.airline_id             = 2
                         flight_obj.airport_code_depart    = data['departureLocation']['airport']['code']
                         flight_obj.airport_code_arrival   = data['arrivalLocation']['airport']['code']
-
                         flight_obj.flight_duration        = datetime.time(hour=duration_min//60, minute=duration_min%60)
-
-
                         flight_obj.number_seats_total     = None
                         flight_obj.number_of_stops        = len(segments) - 1
                         flight_obj.connection_flight      = len(segments) > 1

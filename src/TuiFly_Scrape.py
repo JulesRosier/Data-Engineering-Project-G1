@@ -8,6 +8,7 @@ from requests.exceptions import Timeout
 from proxies import get_valid_proxy
 
 from repository import Flight
+from repository import FlightData
 # from pprint import pprint
 
 # CONSTS
@@ -18,8 +19,6 @@ URL = "https://www.tuifly.be/flight/nl/search?flyingFrom%5B%5D={origin}&flyingTo
 def parse_flight(json_data):
     flights = []
     for flight in json_data['flightViewData']:
-        out = {}
-
         try:
             depdate = date.fromisoformat(flight['journeySummary']['departDate'])
             deptime = time.fromisoformat(flight['journeySummary']['depTime'] + ':00') 
@@ -39,38 +38,36 @@ def parse_flight(json_data):
 
             if Flight.select().where(Flight.flight_key == f_key).exists():
                 flight_obj = Flight.get(flight_key = f_key)
-                bestaat_all = True
             else:
                 flight_obj = Flight(flight_key = f_key)
-                bestaat_all = False
 
-            flight_obj.last_updated           = datetime.now()
-            flight_obj.airline_id             = 3
-            flight_obj.airport_code_depart    = flight['journeySummary']['departAirportCode']
-            flight_obj.airport_code_arrival   = flight['journeySummary']['arrivalAirportCode']
-            flight_obj.datetime_depart        = datetime.combine(depdate, deptime)
-            flight_obj.datetime_arrival       = datetime.combine(arrivaldate, arrivaltime)
-            flight_obj.flight_duration        = time(hour=int(f_duration_h[:-1]), minute=int(f_duration_min[:-1]))
-            flight_obj.ticket_price           = flight['totalPrice']
-            flight_obj.number_seats_total     = None
-            flight_obj.number_seats_available = flight['journeySummary']['availableSeats']
-            flight_obj.number_of_stops        = None
-            flight_obj.connection_flight      = None
-            flight_obj.flight_number          = flight['flightsectors'][0]['flightNumber']
+                flight_obj.airline_id             = 3
+                flight_obj.airport_code_depart    = flight['journeySummary']['departAirportCode']
+                flight_obj.airport_code_arrival   = flight['journeySummary']['arrivalAirportCode']
+                flight_obj.flight_duration        = time(hour=int(f_duration_h[:-1]), minute=int(f_duration_min[:-1]))
+                flight_obj.number_seats_total     = None
+                flight_obj.number_of_stops        = None
+                flight_obj.connection_flight      = None
+                flight_obj.flight_number          = flight['flightsectors'][0]['flightNumber']
 
-            if bestaat_all:
-                flight_obj.save()
-            else:
                 flight_obj.save(force_insert=True)
+                            
+            flight_data_obj = FlightData()
+
+            flight_data_obj.datetime_depart        = datetime.combine(depdate, deptime)
+            flight_data_obj.datetime_arrival       = datetime.combine(arrivaldate, arrivaltime)
+            flight_data_obj.number_seats_available = flight['journeySummary']['availableSeats']
+            flight_data_obj.ticket_price           = flight['totalPrice']
+
+            flight_data_obj.flight_key = flight_obj
+            flight_data_obj.save(force_insert=True)
 
         except Exception as e: print(e)
 
-    return flights
 
-timeout = 30
+timeout = 15
 
 def get_data(destinations, dates):
-    flights = []
     for depart in DEPARTS:
         for date in dates:
             for destination in destinations:
@@ -85,5 +82,4 @@ def get_data(destinations, dates):
                     if row.find("var searc") > 0:
                         json_string = row[row.find('{'):][:-1]
                         json_data = json.loads(json_string)
-                        flights += parse_flight(json_data)
-    return flights
+                        parse_flight(json_data)

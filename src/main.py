@@ -34,13 +34,14 @@ if __name__ == "__main__":
     seed_db()
 
     if script == "TuiFly_Scrape":
-        # # pprint(TuiFly_Scrape.get_data(ARIVE, dates))
         TuiFly_Scrape.get_data(ARIVE, dates)
         
     if script == "Ryanair_Scrape":
         Ryanair_Scrape.get_data(ARIVE, dates)
 
     if script == "Brussels_Airlines":
+        pass
         # Brussels_Airlines.get_data(ARIVE, dates)
+
 
     close_db()
