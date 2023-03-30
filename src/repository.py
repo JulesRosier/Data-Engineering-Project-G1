@@ -89,7 +89,7 @@ HEADER = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 
 def seed_db():
    Airline.get_or_create(id = 1, name ='Ryanair')
-   Airline.get_or_create(id = 2, name ='BrusselsAirline')
+   Airline.get_or_create(id = 2, name ='BrusselsAirlines')
    Airline.get_or_create(id = 3, name ='TuiFly')
    # Airline.get_or_create(id = 4, name ='Transavia')
 
