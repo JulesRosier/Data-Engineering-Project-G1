@@ -106,7 +106,7 @@ def seed_db():
          Airport.create(code = a,
                         full_name = full_name)
       else:
-         airport_obj = Airport.select().where(Airport.code == a)
+         airport_obj = Airport.get(code = a)
          if airport_obj.full_name == None:
             response = requests.get(URL.format(code=a), headers=HEADER)
             full_name = None
