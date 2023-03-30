@@ -40,7 +40,12 @@ if __name__ == "__main__":
         Ryanair_Scrape.get_data(ARIVE, dates)
 
     if script == "brussels":
-        pass
-        # Brussels_Airlines.get_data(ARIVE, dates)
+        Brussels_Airlines.get_data(ARIVE, dates)
+    
+    print("Geen juist script op gegeven")
+    print("opties zijn de volgende:")
+    print(" tuifly")
+    print(" ryanair")
+    print(" brussels")
 
     close_db()
