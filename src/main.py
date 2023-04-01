@@ -1,3 +1,4 @@
+import logging
 import datetime
 import requests
 import datetime
@@ -5,31 +6,41 @@ from dates import get_dates
 import TuiFly_Scrape
 import Ryanair_Scrape
 import Brussels_Airlines
-from repository import connect_db, close_db, seed_db
 import time
 import sys
-
 from pprint import pprint
+from repository import connect_db, close_db, seed_db
 
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
-# NUMBER_OF_DAYS = 185 # tot en met 1 oktober
 END_DATE = '2023-10-01'
+
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s %(levelname)s: %(message)s',
+    handlers=[
+        logging.StreamHandler(),  # Output to stdout
+        logging.FileHandler('py_scraper.log')  # Output to a log file
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # zorgt er voor dat de code alleen maar loopt als je expliciet main.py uitvoert
 if __name__ == "__main__": 
     if len(sys.argv) != 2:
-        print("Usage: main.py <script>")
+        logging.info("Usage: main.py <script>")
         sys.exit(1)
     script = sys.argv[1]
     
-    print(f"Running script at {datetime.datetime.now()}")
+    logger.info(f"Running {script} script at {datetime.datetime.now()}")
+
     dates = get_dates(END_DATE)
 
     res = requests.get('https://kernel.org/')
     if (res.status_code):
-        print('Success, internet')
+        logging.info('Success, internet')
     else:
-        raise Exception("Geen internet")
+        logging.critical("Geen internet, exiting...")
+        sys.exit(1)
 
     connect_db()
     seed_db()
@@ -37,6 +48,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     if script == "tuifly":
+        logging.info("Scrapping tuifly")
         TuiFly_Scrape.get_data(ARIVE, dates)
         
     if script == "ryanair":
@@ -48,5 +60,5 @@ if __name__ == "__main__":
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    print(f"Elapsed time: {elapsed_time} seconds")
+    logging.info(f"Elapsed time: {elapsed_time//60}:{elapsed_time%60}")
     close_db()

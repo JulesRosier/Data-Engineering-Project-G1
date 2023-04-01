@@ -1,3 +1,4 @@
+import logging
 from pprint import pprint
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -12,6 +13,7 @@ from repository import Flight, FlightData
 DEPART = 'BRU'
 
 URL = "https://book.brusselsairlines.com/lh/dyn/air-lh/revenue/viewFlights?B_DATE_1={date1}&B_DATE_2={date2}&B_LOCATION_1={depart}&CABIN=E&COUNTRY_SITE=BE&DEVICE_TYPE=DESKTOP&E_LOCATION_1={destination}&IP_COUNTRY=BE&LANGUAGE=GB&NB_ADT=1&NB_CHD=0&NB_INF=0&PORTAL=SN&POS=BE&SECURE=TRUE&SITE=LUFTBRUS&SO_SITE_COUNTRY_OF_RESIDENCE=BE&SO_SITE_LH_FRONTEND_URL=www.brusselsairlines.com&TRIP_TYPE=R"
+logger = logging.getLogger(__name__)
 
 def set_chrome_options() -> None:
     chrome_options = Options()
@@ -52,7 +54,7 @@ def get_data(destinations: list[str], dates: list[datetime.date]) -> dict:
     for date in dates:
         # date = date.strftime('%Y%m%d0000')
         for plaats in destinations:
-            print(f"Pulling {plaats} to {DEPART} on {date}")
+            logger.info(f"Pulling {plaats} to {DEPART} on {date}")
             driver.implicitly_wait(100)
             driver.get(URL.format(depart=DEPART,
                                   destination=plaats,
@@ -111,7 +113,8 @@ def get_data(destinations: list[str], dates: list[datetime.date]) -> dict:
 
                         flight_data_obj.flight_key = flight_obj
                         flight_data_obj.save(force_insert=True)
-            except Exception as e: print(e)
+            except Exception as e:
+                logger.error(e)
                 # try:
                 #     error_div = driver.find_element(
                 #         By.CSS_SELECTOR, "div.message-error")

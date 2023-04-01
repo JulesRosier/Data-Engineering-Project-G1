@@ -1,3 +1,4 @@
+import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, date, time
 import requests
@@ -16,8 +17,9 @@ DEPARTS = ['BRU', 'ANR', 'OST', 'LGG']
 HEADER = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'}
 URL = "https://www.tuifly.be/flight/nl/search?flyingFrom%5B%5D={origin}&flyingTo%5B%5D={place}&depDate={date}&adults=1&children=0&childAge=&choiceSearch=true&searchType=pricegrid&nearByAirports=false&currency=EUR&isOneWay=true"
 
+logger = logging.getLogger(__name__)
+
 def parse_flight(json_data):
-    flights = []
     for flight in json_data['flightViewData']:
         try:
             depdate = date.fromisoformat(flight['journeySummary']['departDate'])
@@ -62,19 +64,32 @@ def parse_flight(json_data):
             flight_data_obj.flight_key = flight_obj
             flight_data_obj.save(force_insert=True)
 
-        except Exception as e: print(e)
+        except Exception as e:
+            logger.error(e)
 
-timeout = 15
+timeout = 10
+max_retries = 3
 
 def get_data(destinations, dates):
     for depart in DEPARTS:
         for date in dates:
             for destination in destinations:
-                print(f'Pulling {depart} to {destination} on {date}')
+                logger.info(f'Pulling {depart} to {destination} on {date}')
                 # proxy = get_valid_proxy()
                 # print(proxy)
                 # page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, proxies=proxy, timeout=timeout)
-                page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, timeout=timeout)
+
+                for i in range(max_retries):
+                    try:
+                        page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, timeout=timeout)
+                        break
+                    except requests.exceptions.ReadTimeout as e:
+                        logger.warning(f"request '{depart} to {destination} on {date}' timed out. Retrying ({i+1}/{max_retries})...")
+                        continue
+                else:
+                    logger.error(f"Failed to pull '{depart} to {destination} on {date}'")
+                    continue
+
                 soup = BeautifulSoup(page.content, "lxml")
                 script = soup.find(string=re.compile("var searchResultsJson"))
                 for row in script.splitlines():

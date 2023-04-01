@@ -7,8 +7,10 @@ from dotenv import load_dotenv
 import requests
 import os
 import time
+import logging
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 DB_NAME = 'flights'
 DB_HOST = os.getenv('DB_HOST')
@@ -16,7 +18,6 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_PORT = int(os.getenv('DB_PORT'))
 
-print(DB_HOST, DB_USER, DB_PASSWORD, DB_PORT)
 conn = pymysql.connect(host=DB_HOST, port = DB_PORT, user=DB_USER, password=DB_PASSWORD)
 conn.cursor().execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
 conn.close()
@@ -78,7 +79,8 @@ class FlightData(BaseModel):
       db_table='flight_data'
 
 def connect_db():
-    db.create_tables([Airline, Airport, Flight, FlightData])  
+   logger.info("Connection to DB...")
+   db.create_tables([Airline, Airport, Flight, FlightData])  
 
 
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
@@ -88,6 +90,7 @@ URL = "https://kuvsche4de.execute-api.eu-central-1.amazonaws.com/prod/airportnam
 HEADER = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'}
 
 def seed_db():
+   logger.info("seeding db...")
    Airline.get_or_create(id = 1, name ='Ryanair')
    Airline.get_or_create(id = 2, name ='BrusselsAirlines')
    Airline.get_or_create(id = 3, name ='TuiFly')
@@ -118,4 +121,5 @@ def seed_db():
 
 
 def close_db():
+   logger.info("clossing db")
    db.close()

@@ -1,3 +1,4 @@
+import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, time
 from decimal import Decimal
@@ -11,17 +12,28 @@ from repository import FlightData
 
 # CONSTS
 DEPART = ['BRU', 'CRL']
-# ROUND_TRIP = 'false'
-# INCLUDE_CONNECTING_FLIGHTS = 'false'
 URL = "https://www.ryanair.com/api/booking/v4/nl-nl/availability?ADT=1&CHD=0&DateIn={date}&DateOut={date}&Destination={place}&Disc=0&INF=0&Origin={origin}&IncludeConnectingFlights=false&RoundTrip=false&ToUs=AGREED"
+logger = logging.getLogger(__name__)
+timeout = 10
+max_retries = 3
 
 def get_data(arive, dates) -> dict:
     for place in arive:
         for origin in DEPART:
             for date in dates:
-                print(f"Pulling {origin} to {place} on {date}")
-                page = requests.get(URL.format(
-                    date=date, place=place, origin=origin), timeout=10)
+                logger.info(f"Pulling {origin} to {place} on {date}")
+
+                for i in range(max_retries):
+                    try:
+                        page = requests.get(URL.format(
+                            date=date, place=place, origin=origin), timeout=timeout)
+                        break
+                    except requests.exceptions.ReadTimeout as e:
+                        logger.warning(f"request '{origin} to {place} on {date}' timed out. Retrying ({i+1}/{max_retries})...")
+                        continue
+                else:
+                    logger.error(f"Failed to pull '{origin} to {place} on {date}'")
+                    continue
                 soup = BeautifulSoup(page.content, "lxml")
                 result = soup.find("p").text
                 json_reponse = json.loads(result)
@@ -59,4 +71,5 @@ def get_data(arive, dates) -> dict:
                         flight_data_obj.save(force_insert=True)
 
 
-                    except Exception as e: print(e)
+                    except Exception as e:
+                        logger.error(e)

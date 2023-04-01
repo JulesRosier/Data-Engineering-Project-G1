@@ -13,6 +13,9 @@ services:
       DB_PORT: ${DB_PORT}
       DB_USER: ${DB_ROOT_USER}
       DB_PASSWORD: ${DB_ROOT_PW}
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
 
   mysql_db:
     container_name: mysql_db
@@ -29,6 +32,8 @@ services:
       - type: volume
         source: mysqlvol
         target: /var/lib/mysql
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
 
 volumes:
   mysqlvol:
