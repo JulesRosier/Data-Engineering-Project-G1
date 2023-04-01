@@ -4,6 +4,7 @@ flights = pd.read_csv('queries.csv')
 
 only_ryanair = (flights['name'] == 'Ryanair')
 only_tui = (flights['name'] == 'TuiFly')
+only_brussels_airlines = (flights['name'] == 'BrusselsAirlines')
 only_brussels = (flights['airport_code_depart_id'] == 'BRU')
 only_charleroi = (flights['airport_code_depart_id'] == 'CRL')
 
@@ -53,7 +54,7 @@ print(depart)
 
 # Ryanair	Charleroi	Palma	Aankomstuur	19-apr
 ryanair_flights = flights[only_ryanair & only_charleroi & (flights['airport_code_arrival_id'] == 'PMI')]
-flight = ryanair_flights[ryanair_flights['datetime_depart'].str.contains('2023-04-19')]
+flight = ryanair_flights[ryanair_flights['datetime_arrival'].str.contains('2023-04-19')]
 arrival = flight['datetime_arrival']
 print(arrival)
 
@@ -94,6 +95,11 @@ june_flights = tui_flights[tui_flights['datetime_depart'].str.contains('2023-06'
 average_price = june_flights['ticket_price'].mean()
 print(average_price)
 
+# TUI	Brussel Corfu	Aantal vluchten	    Mei
+tui_flights = flights[only_tui & (flights['airport_code_depart_id'] == 'BRU') & (flights['airport_code_arrival_id'] == 'CFU')]
+may_flights = tui_flights[tui_flights['datetime_depart'].str.contains('2023-05')]
+print(len(may_flights))
+
 # TUI	Luik	Rhodos	Gemiddelde prijs	April
 tui_flights = flights[only_tui & (flights['airport_code_depart_id'] == 'LGG') & (flights['airport_code_arrival_id'] == 'RHO')]
 april_flights = tui_flights[tui_flights['datetime_depart'].str.contains('2023-04')]
@@ -108,7 +114,7 @@ print(depart)
 
 # TUI	Luik	Alicante	Aankomstuur	19-jun
 tui_flights = flights[only_tui & (flights['airport_code_depart_id'] == 'LGG') & (flights['airport_code_arrival_id'] == 'ALC')]
-flight = tui_flights[tui_flights['datetime_depart'].str.contains('2023-06-19')]
+flight = tui_flights[tui_flights['datetime_arrival'].str.contains('2023-06-19')]
 arrival = flight['datetime_arrival'].unique()
 print(arrival)
 
@@ -125,14 +131,71 @@ seats = flight['number_seats_available']
 print(seats)
 
 # Brussels Airlines	Brussel	Alicante	Aantal vluchten	Mei
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'ALC')]
+may_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-05')]
+print(len(may_flights))
+
 # Brussels Airlines	Brussel	Ibiza	Gemiddelde prijs	Juni
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'IBZ')]
+june_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-06')]
+average_price = june_flights['ticket_price'].mean()
+print(average_price)
+
 # Brussels Airlines	Brussel	Tenerife	Aantal vluchten	13-mei
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'TFS')]
+may_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-05-13')]
+print(len(may_flights))
+
 # Brussels Airlines	Brussel	Rhodos	Totaal aantal vluchten	06/06 - 07/07
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'RHO')]
+start_date = '2023-06-06'
+end_date = '2023-07-07'
+jun_jul_flights = brussels_flights[(brussels_flights['datetime_depart'] >= start_date) & (brussels_flights['datetime_depart'] <= end_date)]
+print(len(jun_jul_flights))
+
 # Brussels Airlines	Brussel	Brindisi	Vertrekuur	Mei
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'BDS')]
+may_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-05')]
+departs = may_flights['datetime_depart']
+print(departs)
+
 # Brussels Airlines	Brussel	Napels	Aankomstuur	Juni
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'NAP')]
+june_flights = brussels_flights[brussels_flights['datetime_arrival'].str.contains('2023-06')]
+arrivals = june_flights['datetime_arrival']
+print(arrivals)
+
 # Brussels Airlines	Brussel	Palermo	Aantal tussenstops	Juli
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'PMO')]
+july_flights = brussels_flights[brussels_flights['datetime_arrival'].str.contains('2023-07')]
+stops_stats = july_flights['number_of_stops'].describe()
+print(stops_stats)
+
 # Brussels Airlines	Brussel	Faro	Gemiddelde prijs	April
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'FAO')]
+april_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-04')]
+average_price = april_flights['ticket_price'].mean()
+print(average_price)
+
 # Brussels Airlines	Brussel	Alicante	Aantal vluchten	Juli
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'ALC')]
+july_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-07')]
+print(len(july_flights))
+
 # Brussels Airlines	Brussel	Ibiza	Vertrekuur	Juni
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'IBZ')]
+june_flights = brussels_flights[brussels_flights['datetime_depart'].str.contains('2023-06')]
+departs = june_flights['datetime_depart']
+print(departs)
+
 # Brussels Airlines	Brussel	Malaga	Aankomstuur	Juli
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'AGP')]
+july_flights = brussels_flights[brussels_flights['datetime_arrival'].str.contains('2023-07')]
+arrivals = july_flights['datetime_arrival']
+print(arrivals)
+
 # Brussels Airlines	Brussel	Tenerife	Aantal tussenstops	April
+brussels_flights = flights[only_brussels_airlines & (only_brussels) & (flights['airport_code_arrival_id'] == 'TFS')]
+april_flights = brussels_flights[brussels_flights['datetime_arrival'].str.contains('2023-04')]
+stops_stats = april_flights['number_of_stops'].describe()
+print(stops_stats)
