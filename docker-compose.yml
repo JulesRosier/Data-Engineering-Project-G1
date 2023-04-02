@@ -13,9 +13,7 @@ services:
       DB_PORT: ${DB_PORT}
       DB_USER: ${DB_ROOT_USER}
       DB_PASSWORD: ${DB_ROOT_PW}
-    volumes:
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
+      TZ: "Europe/Brussels"
 
   mysql_db:
     container_name: mysql_db
