@@ -7,6 +7,8 @@ import re
 import random
 from requests.exceptions import Timeout
 from proxies import get_valid_proxy
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 from repository import Flight
 from repository import FlightData
@@ -70,6 +72,23 @@ def parse_flight(json_data):
 timeout = 10
 max_retries = 3
 
+
+def pulling_fn(depart, destination, date):
+    print(f'Pulling {depart} to {destination} on {date}')
+    # proxy = get_valid_proxy()
+    # print(proxy)
+    # page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, proxies=proxy, timeout=timeout)
+    page = requests.get(URL.format(origin=depart, place=destination, date=date), headers=HEADER, timeout=timeout)
+    soup = BeautifulSoup(page.content, "lxml")
+    script = soup.find(string=re.compile("var searchResultsJson"))
+    for row in script.splitlines():
+        if row.find("var searc") > 0:
+            json_string = row[row.find('{'):][:-1]
+            json_data = json.loads(json_string)
+            parse_flight(json_data)
+
+
+THREAD_COUNT = 12
 def get_data(destinations, dates):
     for depart in DEPARTS:
         for date in dates:
