@@ -4,8 +4,8 @@ import mysql.connector
 DATABASE = "DWVluchten"
 HOST = "localhost"
 USER = "root"
-#PASSWORD = os.environ.get('DB_PASSWORD')
-PASSWORD = "Partyvelde+-3556"
+PASSWORD = os.environ.get('DB_PASSWORD')
+
 
 #AirportKey = 1
 AirportCodes = ['CRL', 'BRU', 'ANR', 'LGG', 'OST', 'CFU', 'BDS', 'NAP', 'ALC', 'RHO', 'AGP', 'PMI', 'HER', 'PMO','FAO', 'TFS', 'IBZ']
