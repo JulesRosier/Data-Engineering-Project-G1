@@ -1,10 +1,11 @@
 import os
 import mysql.connector
 
-database = "DWVluchten"
-host = "localhost"
-user = "root"
-password = os.environ.get('MYSQL_PASSWORD')
+DATABASE = "DWVluchten"
+HOST = "localhost"
+USER = "root"
+#PASSWORD = os.environ.get('DB_PASSWORD')
+PASSWORD = "Partyvelde+-3556"
 
 #AirportKey = 1
 AirportCodes = ['CRL', 'BRU', 'ANR', 'LGG', 'OST', 'CFU', 'BDS', 'NAP', 'ALC', 'RHO', 'AGP', 'PMI', 'HER', 'PMO','FAO', 'TFS', 'IBZ']
@@ -15,12 +16,13 @@ TimeZones = {}
 
 
 mydb = mysql.connector.connect(
-  host= host,
-  user= user,
-  password=password,
-  database=database
+  host= HOST,
+  user= USER,
+  password=PASSWORD,
+  database=DATABASE
 )
 mycursor = mydb.cursor()
+
 
 
 
@@ -28,11 +30,19 @@ mycursor = mydb.cursor()
 
 def MakeNewDatabase():
 
-  drop = "DROP DATABASE IF EXISTS {};".format(database)
+  drop = "DROP DATABASE IF EXISTS {};".format(DATABASE)
   mycursor.execute(drop)
 
-  create = "CREATE DATABASE IF NOT EXISTS {};".format(database)
+  create = "CREATE DATABASE IF NOT EXISTS {};".format(DATABASE)
   mycursor.execute(create)
+
+  use = 'USE {};'.format(DATABASE)
+  mycursor.execute(use)
+
+  MakeNumbers() #tijdelijke tabel 
+
+  
+
 
 
 
@@ -154,17 +164,20 @@ def GetAirlineCodes():
   return ['SN', 'TB', 'FR']
   # return df.airline_iata_code.unique()
 
-def addAirlineKeys():
+def AddAirlineKeys():
   table = 'DimAirline'
   AirlineKeys = MakeAirlineKeys()
   AirlineCodes = GetAirlineCodes()
   CodeDict = dict(zip(AirlineKeys, AirlineCodes)) #codes samen voegen in dict
   AddAirlineKeysQuery = ('INSERT INTO {}.{} (AirlineKey, AirlineCode) '
-                         'VALUES (%s, %s)'.format(database, table))
+                         'VALUES (%s, %s)'.format(DATABASE, table))
   values = [(key, value) for key, value in CodeDict.items()]
   mycursor.executemany(AddAirlineKeysQuery, values)
 
 def FillDimAirline():
+
+  AddAirlineKeys()
+
   fillDimAirlineTable = (
     'UPDATE DWVluchten.DimAirline SET '
     'AirlineName = CASE '
@@ -241,20 +254,125 @@ def MaakDimDate():
   mycursor.execute(maakDimDate)
 
 def FillDimDateKeys():
-  pass
+  fillKeys = ("INSERT INTO DWVluchten.DimDate (DateKey, FullDateAlternateKey) "
+  "SELECT number, date_add('2023-01-01', INTERVAL number DAY) "
+  "FROM numbers "
+  "WHERE DATE_ADD( '2023-01-01', INTERVAL number DAY ) BETWEEN '2023-01-01' AND '2023-12-31' "
+  "ORDER BY number;")
+  mycursor.execute(fillKeys)
 
 def FillDimDate():
-  pass
+
+  FillDimDateKeys()
+
+  fillDimDateQuery = ("UPDATE DWVluchten.DimDate SET "
+  "EnglishDayNameOfWeek= DAYNAME(FullDateAlternateKey), "
+  "DutchDayNameOfWeek	= CASE "
+              "WHEN EnglishDayNameOfWeek IN ('Monday') THEN 'Maandag'"
+              "WHEN EnglishDayNameOfWeek IN ('Tuesday') THEN 'Dinsdag'"
+              "WHEN EnglishDayNameOfWeek IN ('Wednesday') THEN 'Woensdag'"
+              "WHEN EnglishDayNameOfWeek IN ('Thursday') THEN 'Donderdag'"
+              "WHEN EnglishDayNameOfWeek IN ('Friday') THEN 'Vrijdag'"
+              "WHEN EnglishDayNameOfWeek IN ('Saturday') THEN 'Zaterdag'"
+              "WHEN EnglishDayNameOfWeek IN ('Sunday') THEN 'Zondag'"
+              "ELSE NULL "
+              "END, "
+  'DayOfWeek     	= WEEKDAY(FullDateAlternateKey)+1,'
+  'DayOfMonth    	= DATE_FORMAT( FullDateAlternateKey, "%d" ),'
+  'DayOfYear     	= DATE_FORMAT( FullDateAlternateKey, "%j" ),'
+  'WeekOfMonth		= FLOOR((DayOfMonth(FullDateAlternateKey)-1)/7)+1,'
+  'WeekOfYear    	= DATE_FORMAT( FullDateAlternateKey, "%V" ),'
+  'MonthOfYear   	= DATE_FORMAT( FullDateAlternateKey, "%m"),'
+  'EnglishMonthName= DATE_FORMAT( FullDateAlternateKey, "%M"),'
+  "DutchMonthName	= CASE "
+            "WHEN EnglishMonthName = 'January' THEN 'Januari'"
+            "WHEN EnglishMonthName = 'February' THEN 'Februari'"
+            "WHEN EnglishMonthName = 'March' THEN 'Maart'"
+            "WHEN EnglishMonthName = 'April' THEN 'April'"
+            "WHEN EnglishMonthName = 'May' THEN 'Mei'"
+            "WHEN EnglishMonthName = 'June' THEN 'Juni'"
+            "WHEN EnglishMonthName = 'July' THEN 'Juli'"
+            "WHEN EnglishMonthName = 'August' THEN 'Augustus'"
+            "WHEN EnglishMonthName = 'September' THEN 'September'"
+            "WHEN EnglishMonthName = 'October' THEN 'Oktober'"
+            "WHEN EnglishMonthName = 'November' THEN 'November'"
+            "WHEN EnglishMonthName = 'December' THEN 'December'"
+            "ELSE NULL "
+            "END, "
+  "Quarter         = QUARTER(FullDateAlternateKey), "
+  'Year            = DATE_FORMAT( FullDateAlternateKey, "%Y" ),'
+  "NameHoliday 	= CASE "
+            "WHEN (DayOfMonth = 1 AND MonthOfYear = 1) THEN 'Nieuwjaar'"
+            "WHEN (DayOfMonth = 10 AND MonthOfYear = 4) THEN 'Paasmaandag'"
+            "WHEN (DayOfMonth = 1 AND MonthOfYear = 5) THEN 'Dag van de Arbeid'"
+            "WHEN (DayOfMonth = 18 AND MonthOfYear = 5) THEN 'O.H. Hemelvaart'"
+            "WHEN (DayOfMonth = 29 AND MonthOfYear = 5) THEN 'Pinkstermaandag'"
+            "WHEN (DayOfMonth = 21 AND MonthOfYear = 7) THEN 'Nationale feestdag'"
+            "WHEN (DayOfMonth = 15 AND MonthOfYear = 8) THEN 'O.L.V. hemelvaart'"
+            "WHEN (DayOfMonth = 1 AND MonthOfYear = 11) THEN 'Allerheiligen'"
+            "WHEN (DayOfMonth = 11 AND MonthOfYear = 11) THEN 'Wapenstilstand'"
+            "WHEN (DayOfMonth = 25 AND MonthOfYear = 12) THEN 'Kerstmis'"
+            "ELSE NULL "
+            "-- ELSE 'Geen Feestdag'"
+            "-- Holiday = IF(NameHoliday <> 'Geen Feestdag', True, False),"
+            "END, "
+  "-- specifiek voor 2023, nu hard coded, kan aangepast worden met aparte table voor holidays om future proof te maken, of in python met csv file"
+  "BelgianVacation = CASE "
+            "WHEN ((DayOfMonth <= 8 AND MonthOfYear = 1) OR (DayOfMonth >= 25 AND MonthOfYear = 12)) THEN 'Kerstvakantie'"
+            "WHEN (DayOfMonth >= 3 AND DayOfMonth <= 16 AND  MonthOfYear = 4) THEN 'Paasvakantie'"
+            "WHEN (DayOfMonth <= 31 AND (MonthOfYear = 7 OR MonthOfYear = 8)) THEN 'Zomervakantie'"
+            "WHEN ((DayOfMonth >= 30 AND MonthOfYear = 10) OR (DayOfMonth <= 5 AND MonthOfYear = 11)) THEN 'O.H. Hemelvaart'"
+            "ELSE NULL "
+            "END, "
+  "Holiday 		= IF((NameHoliday IS NOT NULL) OR (BelgianVacation IS NOT NULL), True, False),"
+  'Weekend         = IF( DATE_FORMAT( FullDateAlternateKey, "%W" ) IN '
+  "('Saturday','Sunday'), True, False);"
+  )
+  mycursor.execute(fillDimDateQuery)
+
+  
 
 def MakeDimFlight():
-  pass
+  makeDimFlight = (
+  'CREATE TABLE DWVluchten.DimFlight ('
+  'FlightID INT NOT NULL PRIMARY KEY,'
+  'FlightNumber VARCHAR(50),'
+  'TotalNumberOfSeats SMALLINT,'
+  'numberOfStops SMALLINT,'
+  'ConnectingFlights VARCHAR(255)'
+  ');'
+  )
+  mycursor.execute(makeDimFlight)
 
 def FillDimFlight():
   #komt later, unieke waarden uit csv
   pass
 
 def MakeFactFlight():
-  pass
+  makeFactFlight = (
+  'CREATE TABLE DWVluchten.FactFlight ('
+  'FlightKey INT NOT NULL PRIMARY KEY,'
+  'AirlineKey INT,'
+  'DepartDateKey BIGINT,'
+  'ArrivalDateKey BIGINT,'
+  'ScrapeDateKey BIGINT,'
+  'FlightID INT,'
+  'DepartAirportKey INT,'
+  'ArrivalAirportKey INT,'
+  'TicketPrice DECIMAL(10,2),'
+  'NumberOfSeatsAvailable INT,'
+  'DepartureTime TIME,'
+  'ArrivalTime TIME,'
+  'FOREIGN KEY (AirlineKey) REFERENCES DimAirline(AirlineKey),'
+  'FOREIGN KEY (DepartDateKey) REFERENCES DimDate(DateKey),'
+  'FOREIGN KEY (ArrivalDateKey) REFERENCES DimDate(DateKey),'
+  'FOREIGN KEY (FlightID) REFERENCES DimFlight(FlightID),'
+  'FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportKey),'
+  'FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportKey),'
+  'FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey)'
+  ');'
+  )
+  mycursor.execute(makeFactFlight)
 
 def FillFactFlight():
   #komt later, alle data in factflight
@@ -269,25 +387,23 @@ def InitializeDatabase():
   FillDimAirport()
 
   MakeDimAirline()
-  addAirlineKeys()
   FillDimAirline()
   
-  MakeNumbers()
-  
   MaakDimDate()
-  FillDimDateKeys()
   FillDimDate()
 
   MakeDimFlight()
 
   MakeFactFlight()
-
+  
   RemoveNumbers() #verwijderen van tijdelijke tabellen
+  
+  mydb.commit()
 
 InitializeDatabase()
 
 #Uploaden naar db
-mydb.commit()
+
 
 
 print("Geslaagd")
