@@ -30,11 +30,10 @@ try:
 
             # for each date check if the file exists and copy the file to C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\
             
-            # WERKT NIET
-            # downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
-            # old_path = os.path.join(downloads_folder, "All" + "_" + date_format + ".csv")
-            # old_path moet de locatie worden waar de csv bestanden staan
-             
+            # hieronder is wat je moet aanpassen naar het csv mapje binnen het project zelf
+            # old_path = "C:\\Users\\svre257\\OneDrive - Hogeschool Gent\\Documenten\\Lesgeven Voorjaar 2023\\Data Engineering Project I\\Scrape\\" + airline + "_" + date_format + ".csv" 
+            # old_path = 
+            # zorg er dan voor dat je csvToGithub.py script geen All.csv meer genereert, maar een csv file per datum
             new_path = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\" + "All" + ".csv"
             
             # Remove file if it already exists
