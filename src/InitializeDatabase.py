@@ -266,7 +266,7 @@ def FillDimDate():
   FillDimDateKeys()
 
   fillDimDateQuery = ("UPDATE DWVluchten.DimDate SET "
-  "EnglishDayNameOfWeek= DAYNAME(FullDateAlternateKey), "
+  "EnglishDayNameOfWeek = DAYNAME(FullDateAlternateKey), "
   "DutchDayNameOfWeek	= CASE "
               "WHEN EnglishDayNameOfWeek IN ('Monday') THEN 'Maandag'"
               "WHEN EnglishDayNameOfWeek IN ('Tuesday') THEN 'Dinsdag'"
@@ -313,10 +313,8 @@ def FillDimDate():
             "WHEN (DayOfMonth = 11 AND MonthOfYear = 11) THEN 'Wapenstilstand'"
             "WHEN (DayOfMonth = 25 AND MonthOfYear = 12) THEN 'Kerstmis'"
             "ELSE NULL "
-            "-- ELSE 'Geen Feestdag'"
-            "-- Holiday = IF(NameHoliday <> 'Geen Feestdag', True, False),"
             "END, "
-  "-- specifiek voor 2023, nu hard coded, kan aangepast worden met aparte table voor holidays om future proof te maken, of in python met csv file"
+  #"-- specifiek voor 2023, nu hard coded, kan aangepast worden met aparte table voor holidays om future proof te maken, of in python met csv file"
   "BelgianVacation = CASE "
             "WHEN ((DayOfMonth <= 8 AND MonthOfYear = 1) OR (DayOfMonth >= 25 AND MonthOfYear = 12)) THEN 'Kerstvakantie'"
             "WHEN (DayOfMonth >= 3 AND DayOfMonth <= 16 AND  MonthOfYear = 4) THEN 'Paasvakantie'"
