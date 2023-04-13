@@ -2,9 +2,11 @@ import os
 import mysql.connector
 
 DATABASE = "DWVluchten"
-HOST = "localhost"
-USER = "root"
-PASSWORD = os.environ.get('DB_PASSWORD')
+HOST = os.getenv('DB_HOST')
+DATABASE = 'flight_oltp'
+USER = os.getenv('DB_USER')
+PASSWORD = os.getenv('DB_PASSWORD')
+DOWNLOADS_FOLDER = os.getenv('REPO_PATH')
 
 
 #AirportKey = 1
