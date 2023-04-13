@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_var_data` (
 );
 
 # 3) Data inladen
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\all.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 
 ## Airport 
 IGNORE INTO TABLE `flight_oltp`.`flight_airport`
@@ -58,7 +58,7 @@ LINES TERMINATED BY '\n'
 SET iata=@departure_airport_iata_code, iata=@arrival_airport_iata_code;
 
 ## Airline 
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\all.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airline`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
@@ -66,7 +66,7 @@ LINES TERMINATED BY '\n'
 SET iata=@airline_iata_code;
 
 # Fixed Flight_Data 
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\all.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_fixed_data`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
@@ -74,7 +74,7 @@ LINES TERMINATED BY '\n'
 SET flight_key=@flight_id, flight_number=@flight_number, number_of_stops=@number_of_stops, departure_airport=@departure_airport_iata_code, arrival_airport=@arrival_airport_iata_code, operating_airline=@airline_iata_code;
 
 #  Var Flight_Data 
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\all.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_var_data`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
