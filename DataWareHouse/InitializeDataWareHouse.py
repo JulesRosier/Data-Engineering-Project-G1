@@ -3,10 +3,9 @@ import mysql.connector
 
 DATABASE = "DWVluchten"
 HOST = os.getenv('DB_HOST')
-DATABASE = 'flight_oltp'
 USER = os.getenv('DB_USER')
 PASSWORD = os.getenv('DB_PASSWORD')
-DOWNLOADS_FOLDER = os.getenv('REPO_PATH')
+DOWNLOADS_FOLDER = os.getenv('REPO_PATH') #csv folder path
 
 
 #AirportKey = 1
