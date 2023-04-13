@@ -30,7 +30,7 @@ try:
             date_format = start_date.strftime("%Y_%m_%d")
 
             # for each date check if the file exists and copy the file to C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\
-            old_path = DOWNLOADS_FOLDER + "All" + ".csv" # WERKT WEL xoxo
+            old_path = DOWNLOADS_FOLDER + "All" + "_" + date_format + ".csv"
             new_path = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\" + "All" + ".csv"
             
             # Remove file if it already exists
