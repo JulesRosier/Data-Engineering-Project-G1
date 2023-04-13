@@ -30,10 +30,8 @@ try:
 
             # for each date check if the file exists and copy the file to C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\
             
-            # WERKT NIET
-            # downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
-            # old_path = os.path.join(downloads_folder, "All" + "_" + date_format + ".csv")
-            # old_path moet de locatie worden waar de csv bestanden staan
+            downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+            old_path = os.path.join(downloads_folder, "All" + "_" + date_format + ".csv")
              
             new_path = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\" + "All" + ".csv"
             
