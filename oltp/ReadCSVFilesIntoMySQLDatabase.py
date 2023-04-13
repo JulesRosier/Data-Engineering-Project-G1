@@ -14,6 +14,7 @@ DB_HOST = os.getenv('DB_HOST')
 DB_DATABASE = 'flight_oltp'
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
+DOWNLOADS_FOLDER = os.getenv('REPO_PATH')
 
 try:
     # autocommit is zéér belangrijk.
@@ -30,10 +31,10 @@ try:
 
             # for each date check if the file exists and copy the file to C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\
             
-            # hieronder is wat je moet aanpassen naar het csv mapje binnen het project zelf
-            # old_path = "C:\\Users\\svre257\\OneDrive - Hogeschool Gent\\Documenten\\Lesgeven Voorjaar 2023\\Data Engineering Project I\\Scrape\\" + airline + "_" + date_format + ".csv" 
-            # old_path = 
-            # zorg er dan voor dat je csvToGithub.py script geen All.csv meer genereert, maar een csv file per datum
+            # WERKT WEL xoxo
+            old_path = DOWNLOADS_FOLDER + "All" + ".csv"
+
+
             new_path = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\" + "All" + ".csv"
             
             # Remove file if it already exists
