@@ -17,8 +17,10 @@ DB_HOST = os.getenv('DB_HOST')
 DB_DATABASE = 'flight_oltp'
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
-DOWNLOADS_FOLDER = os.getenv('REPO_PATH') #= csv folder path
-OLTP_FOLDER = os.getenv('OLTP_PATH') 
+# DOWNLOADS_FOLDER = os.getenv('REPO_PATH') #= csv folder path
+# OLTP_FOLDER = os.getenv('OLTP_PATH') 
+DOWNLOADS_FOLDER = './src/csv/'
+OLTP_FOLDER = './oltp/'
 
 
 try:

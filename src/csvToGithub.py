@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ONEDRIVE_PATH= os.environ.get('ONEDRIVE_PATH') #.env aanpassen naar eigen onedrive in volgend formaat: # ONEDRIVE_PATH= "C:\\Users\\WardD\\OneDrive - Hogeschool Gent\\AirFares\\"
-REPO_PATH = os.environ.get('REPO_PATH') #.env aanpassen naar eigen repo in volgend formaat:# REPO_PATH = "C:\\Users\\WardD\\Documents\\School\\22-23\\SEMESTER 2\\Project\\Repo\\Data-Engineering-Project-G1\\src\\csv\\"
-# REPO_PATH = "./src/csv/"
+# REPO_PATH = os.environ.get('REPO_PATH') #.env aanpassen naar eigen repo in volgend formaat:# REPO_PATH = "C:\\Users\\WardD\\Documents\\School\\22-23\\SEMESTER 2\\Project\\Repo\\Data-Engineering-Project-G1\\src\\csv\\"
+REPO_PATH = "./src/csv/"
 
 
 
@@ -24,7 +24,8 @@ while start_date <= end_date:
     repo_All_Recent = REPO_PATH + "All" + ".csv"
     repo_All_Onedrive = ONEDRIVE_PATH + "All" + "_" + date_format + ".csv"
 
-
+    if not os.path.exists(REPO_PATH):
+        os.makedirs(REPO_PATH)
     if os.path.exists(repo_All):
         os.remove(repo_All)
     if os.path.exists(repo_All_Recent):
