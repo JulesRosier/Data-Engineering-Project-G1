@@ -7,16 +7,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# EERST DIT UITVOEREN IN MYSQL WORKBENCH! (enkel nodig voor de allereerste keer dat je het script draait)
-# CREATE SCHEMA IF NOT EXISTS `flight_oltp` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-
-
 DB_HOST = os.getenv("DB_HOST")
 DB_DATABASE = "flight_oltp"
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
-# DOWNLOADS_FOLDER = os.getenv('REPO_PATH') #= csv folder path
-# OLTP_FOLDER = os.getenv('OLTP_PATH')
 DOWNLOADS_FOLDER = "./src/csv/"
 OLTP_FOLDER = "./oltp/"
 
@@ -63,13 +57,8 @@ try:
             conn.reconnect()
             cursor = conn.cursor()
 
-            # Execute commands in file LoadFiles.sql to import data into database airfares
+            # Execute commands in file LoadFiles.sql to import data into database 'flight_oltp'
             file_name = "LoadFiles.sql"
-
-            # for root, dirs, files in os.walk('/'):
-            #     if file_name in files:
-            #         path = os.path.join(root, file_name)
-            #         break
 
             with open("{}{}".format(OLTP_FOLDER, file_name), "r") as f:
                 cursor.execute(f.read(), multi=True)
