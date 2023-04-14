@@ -3,6 +3,9 @@ from mysql.connector import Error
 from datetime import date, timedelta
 import shutil
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # EERST DIT UITVOEREN IN MYSQL WORKBENCH! (enkel nodig voor de allereerste keer dat je het script draait)
 # CREATE SCHEMA IF NOT EXISTS `flight_oltp` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
@@ -16,6 +19,7 @@ DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DOWNLOADS_FOLDER = os.getenv('REPO_PATH') #= csv folder path
 OLTP_FOLDER = os.getenv('OLTP_PATH') 
+
 
 try:
     # autocommit is zéér belangrijk.

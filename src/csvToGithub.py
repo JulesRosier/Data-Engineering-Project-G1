@@ -2,10 +2,13 @@ import mysql.connector as mysql
 from datetime import date, timedelta
 import shutil
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ONEDRIVE_PATH= os.environ.get('ONEDRIVE_PATH') #.env aanpassen naar eigen onedrive in volgend formaat: # ONEDRIVE_PATH= "C:\\Users\\WardD\\OneDrive - Hogeschool Gent\\AirFares\\"
 REPO_PATH = os.environ.get('REPO_PATH') #.env aanpassen naar eigen repo in volgend formaat:# REPO_PATH = "C:\\Users\\WardD\\Documents\\School\\22-23\\SEMESTER 2\\Project\\Repo\\Data-Engineering-Project-G1\\src\\csv\\"
-
+# REPO_PATH = "./src/csv/"
 
 
 
