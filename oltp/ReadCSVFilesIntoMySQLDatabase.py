@@ -46,9 +46,7 @@ try:
             # for each date check if the file exists and copy the file to C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\
             old_path = DOWNLOADS_FOLDER + "All" + "_" + date_format + ".csv"
             print(old_path)
-            new_path = (
-                SQL_UPLOAD + "All" + ".csv"
-            )
+            new_path = (SQL_UPLOAD + "All" + ".csv")
 
             # Remove file if it already exists
             if os.path.exists(new_path):
@@ -76,14 +74,13 @@ try:
                     os.remove(target_path)
                 shutil.copy(DOWNLOADS_FOLDER + file, target_path)
                 print(f"loading {file}... ", end='')
-                # with open("./LoadInfo.sql", "r") as f:
-                #     cursor.execute(f.read(), multi=True)
-                # cursor.close()
+                with open("./LoadInfo.sql", "r") as f:
+                    cursor.execute(f.read(), multi=True)
+                cursor.close()
 
                 # Cleanup
                 os.remove(target_path)
                 print(f"done")
-
     conn.close()
 
 except Error as e:

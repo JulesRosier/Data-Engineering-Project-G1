@@ -54,9 +54,8 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_var_data` (
 );
 
 # 3) Data inladen
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
-
 ## Airport 
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airport`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
