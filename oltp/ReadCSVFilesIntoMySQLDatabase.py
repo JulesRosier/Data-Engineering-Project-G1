@@ -5,6 +5,8 @@ import shutil
 import os
 from dotenv import load_dotenv
 
+# Moet 2 keer runnen als DB nog niet bestaat, idk why
+
 load_dotenv()
 
 DB_HOST = os.getenv("DB_HOST")
@@ -13,6 +15,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DOWNLOADS_FOLDER = "./src/csv/"
 OLTP_FOLDER = "./oltp/"
+SQL_UPLOAD = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\"
 
 conn = mysql.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD)
 conn.cursor().execute(f"CREATE DATABASE IF NOT EXISTS {DB_DATABASE}")
@@ -44,7 +47,7 @@ try:
             old_path = DOWNLOADS_FOLDER + "All" + "_" + date_format + ".csv"
             print(old_path)
             new_path = (
-                "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\" + "All" + ".csv"
+                SQL_UPLOAD + "All" + ".csv"
             )
 
             # Remove file if it already exists
@@ -65,6 +68,21 @@ try:
             cursor.close()
 
             start_date += delta
+
+        for file in os.listdir(DOWNLOADS_FOLDER):
+            if "info_flightnumber" in file:
+                target_path = SQL_UPLOAD + "info.csv"
+                if os.path.exists(target_path):
+                    os.remove(target_path)
+                shutil.copy(DOWNLOADS_FOLDER + file, target_path)
+                print(f"loading {file}... ", end='')
+                # with open("./LoadInfo.sql", "r") as f:
+                #     cursor.execute(f.read(), multi=True)
+                # cursor.close()
+
+                # Cleanup
+                os.remove(target_path)
+                print(f"done")
 
     conn.close()
 
