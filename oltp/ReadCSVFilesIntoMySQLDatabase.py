@@ -73,14 +73,25 @@ try:
                 if os.path.exists(target_path):
                     os.remove(target_path)
                 shutil.copy(DOWNLOADS_FOLDER + file, target_path)
+                conn.reconnect()
+                cursor = conn.cursor()
                 print(f"loading {file}... ", end='')
-                with open("./LoadInfo.sql", "r") as f:
+                with open("./oltp/LoadInfo.sql", "r") as f:
                     cursor.execute(f.read(), multi=True)
                 cursor.close()
 
                 # Cleanup
                 os.remove(target_path)
                 print(f"done")
+
+        print("Seeding... ", end='')
+        conn.reconnect()
+        cursor = conn.cursor()
+        with open("./oltp/Seeds.sql", "r") as f:
+            cursor.execute(f.read(), multi=True)
+        cursor.close()
+        print("done")
+
     conn.close()
 
 except Error as e:
