@@ -25,7 +25,7 @@ SET flight_number=@flight_number, type=@airplane_type, age=@airplane_age, total_
 
 ## Airport
 LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.sql'
-IGNORE INTO TABLE `flight_oltp`.`flight_airplane`
+IGNORE INTO TABLE `flight_oltp`.`flight_airport`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
 (@flight_number, @airplane_type  @airplane_age  @total_seats @distance_flown)
