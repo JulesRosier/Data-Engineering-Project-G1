@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_airplane`(
 
 -- 3) Data inladen
 -- Airplane
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.sql'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\info.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airplane`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
@@ -23,7 +23,7 @@ LINES TERMINATED BY '\n'
 SET flight_number=@flight_number, airplane_type=@airplane_type, airplane_age=@airplane_age, total_seats=@total_seats;
 
 -- Airport
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.sql'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\info.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airport`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
