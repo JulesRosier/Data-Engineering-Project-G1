@@ -1,11 +1,11 @@
-# 1) Databank aanmaken
+-- 1) Databank aanmaken
 CREATE SCHEMA IF NOT EXISTS `flight_oltp` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 USE `flight_oltp` ; 
 SET FOREIGN_KEY_CHECKS = 0; 
 SET GLOBAL local_infile = 'ON';		# https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
 
-# 2) Tabellen aanmaken
-## Airport
+-- 2) Tabellen aanmaken
+-- Airport
 CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_airport`(
     iata CHAR(3) UNIQUE NOT NULL,
     name VARCHAR(100),
@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_airport`(
     CONSTRAINT `distance_between_airports` FOREIGN KEY (`iata`) REFERENCES `flight_oltp`.`flight_airport`(`iata`)
 );
 
-## Airline
+-- Airline
 CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_airline`(
     iata CHAR(3) UNIQUE NOT NULL,
     name VARCHAR(100),
     PRIMARY KEY (`iata`)
 );
 
-## Flight Fixed Data
+-- Flight Fixed Data
 CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_fixed_data` (
   flight_key VARCHAR(40) NOT NULL,
   flight_number VARCHAR(10),
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_fixed_data` (
   FOREIGN KEY (`operating_airline`) REFERENCES `flight_oltp`.`flight_airline` (`iata`)
   );
 
-## Flight Var Data
+-- Flight Var Data
 CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_var_data` (
   flight_id INT NOT NULL auto_increment,
   scrape_date DATE,
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_var_data` (
   FOREIGN KEY (`flight_key`) REFERENCES `flight_oltp`.`flight_fixed_data` (`flight_key`)
 );
 
-# 3) Data inladen
-## Airport 
+-- 3) Data inladen
+-- Airport 
 LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airport`
 FIELDS TERMINATED BY ','
@@ -62,7 +62,7 @@ LINES TERMINATED BY '\n'
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET iata=@departure_airport_iata_code, iata=@arrival_airport_iata_code;
 
-## Airline 
+-- Airline 
 LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airline`
 FIELDS TERMINATED BY ','
@@ -70,7 +70,7 @@ LINES TERMINATED BY '\n'
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET iata=@airline_iata_code;
 
-## Fixed Flight_Data 
+-- Fixed Flight_Data 
 LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_fixed_data`
 FIELDS TERMINATED BY ','
@@ -78,7 +78,7 @@ LINES TERMINATED BY '\n'
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET flight_key=@flight_id, flight_number=@flight_number, number_of_stops=@number_of_stops, departure_date=@departure_date, arrival_date=@arrival_date, departure_time=@departure_time, arrival_time=@arrival_time, duration=@duration, departure_airport=@departure_airport_iata_code, arrival_airport=@arrival_airport_iata_code, operating_airline=@airline_iata_code;
 
-##  Var Flight_Data 
+-- Var Flight_Data 
 LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_var_data`
 FIELDS TERMINATED BY ','
@@ -86,6 +86,6 @@ LINES TERMINATED BY '\n'
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET scrape_date=@scrape_date, price=@price, seats_available=@available_seats, flight_key=@flight_id;
 
-## Alle instellingen terug op standaardinstellingen plaatsen.
+-- Alle instellingen terug op standaardinstellingen plaatsen.
 SET FOREIGN_KEY_CHECKS = 1;
 SET GLOBAL local_infile = 'OFF';

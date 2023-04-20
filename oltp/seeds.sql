@@ -1,3 +1,4 @@
+-- flight_airport
 UPDATE `flight_oltp`.`flight_airport`
 SET `name` = 'Brussels South Charleroi Airport', `city` = 'Charleroi', `country` = 'Belgium'
 WHERE `iata` = 'CRL';
@@ -109,3 +110,20 @@ WHERE `iata` = 'TFS';
 UPDATE `flight_oltp`.`flight_airport`
 SET `name` = 'Ibiza Airport', `city` = 'Ibiza', `country` = 'Spain'
 WHERE `iata` = 'IBZ';
+
+-- flight_airline  
+UPDATE `flight_oltp`.`flight_airline`
+SET `name` = 'Ryanair'
+WHERE `iata` = 'FR';
+
+UPDATE `flight_oltp`.`flight_airline`
+SET `name` = 'Transavia'
+WHERE `iata` = 'HV';
+
+UPDATE `flight_oltp`.`flight_airline`
+SET `name` = 'TUI fly'
+WHERE `iata` = 'TB';
+
+UPDATE `flight_oltp`.`flight_airline`
+SET `name` = 'Brussels Airlines'
+WHERE `iata` = 'SN';
