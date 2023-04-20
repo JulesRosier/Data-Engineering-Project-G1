@@ -22,8 +22,7 @@ TimeZones = {}
 mydb = mysql.connector.connect(
   host= HOST,
   user= USER,
-  password=PASSWORD,
-  database=DATABASE
+  password=PASSWORD
 )
 mycursor = mydb.cursor()
 
