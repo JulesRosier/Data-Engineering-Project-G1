@@ -20,6 +20,11 @@ delta = timedelta(days=1)
 if not os.path.exists(REPO_PATH):
     os.makedirs(REPO_PATH)
 
+for file in os.listdir(ONEDRIVE_PATH):
+    if "info_flightnumber" in file:
+        print(f"copy: {file}")
+        shutil.copy(f"{ONEDRIVE_PATH}{file}", REPO_PATH)
+
 while start_date <= end_date:
 
     date_format = start_date.strftime("%Y_%m_%d")
