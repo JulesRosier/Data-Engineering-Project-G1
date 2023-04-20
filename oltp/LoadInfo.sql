@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_airplane`(
     airplane_age INT,
     total_seats INT,
     flight_number VARCHAR(10) NOT NULL,
-    PRIMARY KEY (`type`),
+    PRIMARY KEY (`airplane_type`),
     FOREIGN KEY (`flight_number`) REFERENCES `flight_oltp`.`flight_fixed_data` (`flight_number`)
 );
 
@@ -19,7 +19,7 @@ LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.sq
 IGNORE INTO TABLE `flight_oltp`.`flight_airplane`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
-(@flight_number, @airplane_type  @airplane_age  @total_seats @distance_flown)
+(@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
 SET flight_number=@flight_number, airplane_type=@airplane_type, airplane_age=@airplane_age, total_seats=@total_seats;
 
 -- Airport
@@ -27,7 +27,7 @@ LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.sq
 IGNORE INTO TABLE `flight_oltp`.`flight_airport`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
-(@flight_number, @airplane_type  @airplane_age  @total_seats @distance_flown)
+(@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
 SET distance_flown=@distance_flown;
 
 -- Alle instellingen terug op standaardinstellingen plaatsen.
