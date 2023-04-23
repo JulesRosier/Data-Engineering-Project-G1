@@ -2,6 +2,7 @@
 CREATE SCHEMA IF NOT EXISTS `flight_oltp` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 USE `flight_oltp` ; 
 SET GLOBAL local_infile = 'ON';		# https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- 2) Tabellen aanmaken
 -- Airport
@@ -87,3 +88,4 @@ SET scrape_date=@scrape_date, price=@price, seats_available=@available_seats, fl
 
 -- Alle instellingen terug op standaardinstellingen plaatsen.
 SET GLOBAL local_infile = 'OFF';
+SET FOREIGN_KEY_CHECKS = 1;

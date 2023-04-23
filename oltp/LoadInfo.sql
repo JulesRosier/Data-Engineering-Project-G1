@@ -1,6 +1,7 @@
 -- 1) Algemeen
 USE `flight_oltp`;
 SET GLOBAL local_infile = 'ON';	# https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- 2) Tabel aanmaken
 -- Airplane
@@ -15,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `flight_oltp`.`flight_airplane`(
 
 -- 3) Data inladen
 -- Airplane
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\info.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airplane`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
@@ -23,7 +24,7 @@ LINES TERMINATED BY '\n'
 SET flight_number=@flight_number, airplane_type=@airplane_type, airplane_age=@airplane_age, total_seats=@total_seats;
 
 -- Airport
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\info.csv'
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv'
 IGNORE INTO TABLE `flight_oltp`.`flight_airport`
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n'
@@ -32,4 +33,5 @@ SET distance_flown=@distance_flown;
 
 -- Alle instellingen terug op standaardinstellingen plaatsen.
 SET GLOBAL local_infile = 'OFF';
+SET FOREIGN_KEY_CHECKS = 1;
 
