@@ -2,6 +2,8 @@ import os
 import mysql.connector
 from dotenv import load_dotenv
 
+# ENKEL AAN dwh.sql VERDERWERKEN, WORDT NIET MEER GEBRUIKT!
+
 load_dotenv()
 
 DATABASE = "DWVluchten"

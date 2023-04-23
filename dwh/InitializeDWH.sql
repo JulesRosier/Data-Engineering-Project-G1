@@ -2,6 +2,8 @@ DROP DATABASE IF EXISTS DWVluchten;
 CREATE DATABASE DWVluchten;
 USE DWVluchten; 
 
+-- ENKEL AAN dwh.sql VERDERWERKEN, WORDT NIET MEER GEBRUIKT!
+
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirport
 CREATE TABLE DWVluchten.DimAirport (
