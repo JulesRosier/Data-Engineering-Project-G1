@@ -41,14 +41,6 @@ try:
     )
     print(type(conn))
     if conn.is_connected():
-        if os.path.exists(DATA_OUT):
-            print(f"Deleted {DATA_OUT}")
-            os.remove(DATA_OUT)
-
-        if os.path.exists(FLIGHT_OUT):
-            print(f"Deleted {FLIGHT_OUT}")
-            os.remove(FLIGHT_OUT)
-
         for file in os.listdir(CSV_FOLDER):
             conn.reconnect()
             if file.endswith('.csv'):
