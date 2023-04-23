@@ -14,7 +14,7 @@ DB_DATABASE = "flight_oltp"
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-CSV_FOLDER = "./src/csv/"
+CSV_FOLDER = "./oltp/csv/"
 
 BASE_OUT_DIR = "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\"
 DATA_OUT = BASE_OUT_DIR + 'All.csv'

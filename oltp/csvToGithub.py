@@ -9,7 +9,7 @@ load_dotenv()
 # .env aanpassen naar eigen onedrive in volgend formaat: # ONEDRIVE_PATH= "C:\\Users\\WardD\\OneDrive - Hogeschool Gent\\AirFares\\"
 ONEDRIVE_PATH = os.environ.get("ONEDRIVE_PATH")
 # REPO_PATH = os.environ.get('REPO_PATH') #.env aanpassen naar eigen repo in volgend formaat:# REPO_PATH = "C:\\Users\\WardD\\Documents\\School\\22-23\\SEMESTER 2\\Project\\Repo\\Data-Engineering-Project-G1\\src\\csv\\"
-REPO_PATH = "./src/csv/"
+REPO_PATH = "./oltp/csv/"
 
 
 # choose a specific start_date
