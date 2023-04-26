@@ -12,7 +12,7 @@ SET name = 'Antwerp International Airport', city = 'Antwerp', country = 'Belgium
 WHERE iata = 'ANR';
 
 UPDATE flight_oltp.flight_airport
-SET name = 'Liege Airport', city = 'Liège', country = 'Belgium'
+SET name = 'Liege Airport', city = 'Liege', country = 'Belgium'
 WHERE iata = 'LGG';
 
 UPDATE flight_oltp.flight_airport
