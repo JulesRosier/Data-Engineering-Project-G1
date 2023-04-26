@@ -3,6 +3,7 @@ from datetime import date, timedelta
 import shutil
 import os
 from dotenv import load_dotenv
+import pandas as pd
 
 load_dotenv()
 
@@ -22,8 +23,11 @@ if not os.path.exists(REPO_PATH):
 
 for file in os.listdir(ONEDRIVE_PATH):
     if "info_flightnumber" in file:
-        print(f"copy: {file}")
-        shutil.copy(f"{ONEDRIVE_PATH}{file}", REPO_PATH)
+        print(f"copying {file}... ", end='')
+        df = pd.read_csv(f"{ONEDRIVE_PATH}{file}")
+        df.to_csv(f"{REPO_PATH}{file}", index=False)
+        # shutil.copy(f"{ONEDRIVE_PATH}{file}", REPO_PATH)
+        print("DONE")
 
 while start_date <= end_date:
 
@@ -40,7 +44,11 @@ while start_date <= end_date:
     #     os.remove(repo_All_Recent)
 
     if os.path.exists(repo_All_Onedrive):
-        shutil.copy(repo_All_Onedrive, repo_All)
+        print(f"copying {repo_All_Onedrive}... ", end='')
+        df = pd.read_csv(repo_All_Onedrive)
+        df.to_csv(repo_All, index=False)
+        # shutil.copy(repo_All_Onedrive, repo_All)
+        print('DONE')
 
     # if os.path.exists(repo_All_Onedrive):
     #     shutil.copy(repo_All_Onedrive, repo_All_Recent)
