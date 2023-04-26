@@ -46,7 +46,11 @@ try:
             if file.endswith('.csv'):
                 if file.startswith('All_'):
                     print(f'Loading {file}... ', end='')
-                    shutil.copy(os.path.join(CSV_FOLDER, file), DATA_OUT)
+                    with open(os.path.join(CSV_FOLDER, file), 'r') as csv_file:
+                        with open(DATA_OUT, 'a') as all_csv_file:
+                            next(csv_file)  # skip header
+                            for line in csv_file:
+                                all_csv_file.write(line)
 
                     cursor = conn.cursor(dictionary=True)
                     with open(LOAD_FILES_SQL, 'r') as sql_file:
