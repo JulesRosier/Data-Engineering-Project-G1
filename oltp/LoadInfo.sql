@@ -23,9 +23,9 @@ LINES TERMINATED BY "\n"
 (@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
 SET flight_number=@flight_number, airplane_type=@airplane_type, airplane_age=@airplane_age, total_seats=@total_seats;
 
--- Airport
+-- Flight Airport Distance
 LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv"
-IGNORE INTO TABLE flight_oltp.flight_airport
+IGNORE INTO TABLE flight_oltp.flight_airport_distance
 FIELDS TERMINATED BY ","
 LINES TERMINATED BY "\n"
 (@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)

@@ -10,9 +10,17 @@ CREATE TABLE IF NOT EXISTS flight_oltp.flight_airport(
     name VARCHAR(100),
     city VARCHAR(100),
     country VARCHAR(100),
+    PRIMARY KEY (iata)
+);
+
+-- Flight Airport Distance
+CREATE TABLE IF NOT EXISTS flight_oltp.flight_airport_distance(
+    airport1_iata CHAR(3) UNIQUE NOT NULL,
+    airport2_iata CHAR(3) UNIQUE NOT NULL,
     distance_flown INT,
-    PRIMARY KEY (iata),
-    CONSTRAINT distance_between_airports FOREIGN KEY (iata) REFERENCES flight_oltp.flight_airport(iata)
+    PRIMARY KEY (airport1_iata, airport2_iata),
+    FOREIGN KEY (airport1_iata) REFERENCES flight_oltp.flight_airport (iata),
+    FOREIGN KEY (airport2_iata) REFERENCES flight_oltp.flight_airport (iata)
 );
 
 -- Airline
