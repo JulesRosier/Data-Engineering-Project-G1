@@ -5,7 +5,6 @@ import shutil
 import os
 from dotenv import load_dotenv
 
-# Moet 2 keer runnen als DB nog niet bestaat, idk why
 
 load_dotenv()
 
@@ -46,11 +45,7 @@ try:
             if file.endswith('.csv'):
                 if file.startswith('All_'):
                     print(f'Loading {file}... ', end='')
-                    with open(os.path.join(CSV_FOLDER, file), 'r') as csv_file:
-                        with open(DATA_OUT, 'a') as all_csv_file:
-                            next(csv_file)  # skip header
-                            for line in csv_file:
-                                all_csv_file.write(line)
+                    shutil.copy(os.path.join(CSV_FOLDER, file), DATA_OUT)
 
                     cursor = conn.cursor(dictionary=True)
                     with open(LOAD_FILES_SQL, 'r') as sql_file:
