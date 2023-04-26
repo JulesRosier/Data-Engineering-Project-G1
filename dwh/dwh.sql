@@ -2,19 +2,20 @@ DROP DATABASE IF EXISTS FlightDWH;
 CREATE DATABASE FlightDWH;
 USE FlightDWH; 
 SET SQL_SAFE_UPDATES = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- sterschema moet aangepast worden
 
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirport
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirport(
-    AirportKey INT NOT NULL AUTO_INCREMENT, -- nog veranderen naar andere key dan auto_increment!
+    -- AirportKey INT NOT NULL AUTO_INCREMENT, -- nog veranderen naar andere key dan auto_increment!
     AirportCode CHAR(3) UNIQUE NOT NULL,
     AirportName VARCHAR(50),
     City VARCHAR(50),
     Country VARCHAR(50),
     DistanceFlown INT,
-    PRIMARY KEY (AirportKey)
+    PRIMARY KEY (AirportCode)
 );
 
 -- Update reeds bestaande records
@@ -33,16 +34,17 @@ WHERE iata NOT IN (SELECT DISTINCT AirportCode FROM FlightDWH.DimAirport);
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirline
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirline (
-  AirlineKey INT NOT NULL AUTO_INCREMENT, -- nog veranderen naar andere key dan auto_increment!
-  AirlineCode CHAR(3) UNIQUE,
+  -- AirlineKey INT NOT NULL AUTO_INCREMENT, -- nog veranderen naar andere key dan auto_increment!
+  -- AirlineKey varchar(20) PRIMARY KEY,
+  AirlineCode CHAR(3) PRIMARY KEY,
   AirlineName VARCHAR(50),
   AirlineContact VARCHAR(50),
-  AirlineAddress VARCHAR(100),
-  PRIMARY KEY (AirlineKey)
+  AirlineAddress VARCHAR(100)
 );
 
 -- Update reeds bestaande records
 UPDATE FlightDWH.DimAirline dima SET 
+-- AirlineKey = (SELECT(CONCAT(fa.iata, '-', fd.departure_date)) FROM flight_oltp.flight_fixed_data fd JOIN flight_oltp.flight_airline fa ON fd.operating_airline = fa.iata),
 AirlineCode = (SELECT iata FROM flight_oltp.flight_airline flighta WHERE flighta.iata = dima.AirlineCode),
 AirlineName = (SELECT name FROM flight_oltp.flight_airline flighta WHERE flighta.name = dima.AirlineName);
 
@@ -91,7 +93,7 @@ LIMIT 1000000;
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimDate
 CREATE TABLE FlightDWH.DimDate (
-  DateKey BIGINT PRIMARY KEY,
+  DateKey DATE,
   FullDateAlternateKey DATETIME,
   EnglishDayNameOfWeek VARCHAR(10),
   DutchDayNameOfWeek VARCHAR(50),
@@ -113,10 +115,12 @@ CREATE TABLE FlightDWH.DimDate (
   UNIQUE KEY `FullDateAlternateKey` (`FullDateAlternateKey`)
 );
 
+ALTER TABLE FlightDWH.DimDate
+ADD INDEX idx_DateKey (DateKey);
 
 -- Vul datekey en alternate key aan
 INSERT INTO FlightDWH.DimDate (DateKey, FullDateAlternateKey)
-SELECT number, date_add('2023-01-01', INTERVAL number DAY)
+SELECT DATE(date_add('2023-01-01', INTERVAL number DAY)), date_add('2023-01-01', INTERVAL number DAY)
 FROM numbers
 WHERE DATE_ADD( '2023-01-01', INTERVAL number DAY ) BETWEEN '2023-01-01' AND '2023-12-31'
 ORDER BY number;
@@ -196,7 +200,6 @@ CREATE TABLE FlightDWH.DimFlight (
 );
 
 -- dimflight vullen
-DELETE FROM flight_oltp.flight_var_data WHERE flight_key IS NULL; -- Probleem met rij 39739
 
 -- Connectingflights momenteel nog null, data hebben we wss niet 
 
@@ -212,27 +215,66 @@ ORDER BY vd.flight_id;
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak Fact Table met foreign keys
 CREATE TABLE FlightDWH.FactFlight (
-  FlightKey INT NOT NULL PRIMARY KEY,
-  AirlineKey INT,
-  DepartDateKey BIGINT,
-  ArrivalDateKey BIGINT,
-  ScrapeDateKey BIGINT,
+  FlightKey VARCHAR(50),
+  AirlineKey VARCHAR(3),
+  DepartDateKey DATE,
+  ArrivalDateKey DATE,
+  ScrapeDateKey DATE,
   FlightID INT,
-  DepartAirportKey INT,
-  ArrivalAirportKey INT,
+  DepartAirportKey VARCHAR(20),
+  ArrivalAirportKey VARCHAR(20),
   TicketPrice DECIMAL(10,2),
   NumberOfSeatsAvailable INT,
   DepartureTime TIME,
   ArrivalTime TIME,
-  FOREIGN KEY (AirlineKey) REFERENCES DimAirline(AirlineKey),
+  FOREIGN KEY (AirlineKey) REFERENCES DimAirline(AirlineCode),
   FOREIGN KEY (DepartDateKey) REFERENCES DimDate(DateKey),
   FOREIGN KEY (ArrivalDateKey) REFERENCES DimDate(DateKey),
   FOREIGN KEY (FlightID) REFERENCES DimFlight(FlightID),
-  FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportKey),
-  FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportKey),
+  FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportCode),
+  FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportCode),
   FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey)
 );
+
+INSERT INTO FlightDWH.FactFlight (
+	FlightKey,
+    AirlineKey,
+    DepartDateKey,
+    ArrivalDateKey,
+    ScrapeDateKey,
+    FlightID,
+    DepartAirportKey,
+    ArrivalAirportKey,
+    TicketPrice,
+    NumberOfSeatsAvailable,
+    DepartureTime,
+    ArrivalTime
+)
+
+-- Fill fact flight
+SELECT
+	CONCAT(vd.flight_key,'-',vd.flight_id) AS FlightKey,
+    -- CONCAT(fa.iata, '-', fd.departure_date) AS AirlineKey,
+    fa.iata AS AirlineKey,
+    fd.departure_date AS DepartDateKey,
+    fd.arrival_date AS ArrivalDateKey,
+    vd.scrape_date AS ScrapeDateKey,
+    vd.flight_id AS FlightID,
+    da.iata AS DepartAirportKey,
+    aa.iata AS ArrivalAirportKey,
+    vd.price AS TicketPrice,
+    vd.seats_available AS NumberOfSeatsAvailable,
+    fd.departure_time AS DepartureTime,
+    fd.arrival_time AS ArrivalTime
+FROM 
+    flight_oltp.flight_var_data vd 
+    JOIN flight_oltp.flight_fixed_data fd ON vd.flight_key = fd.flight_key 
+    JOIN flight_oltp.flight_airline fa ON fd.operating_airline = fa.iata 
+    JOIN flight_oltp.flight_airport da ON fd.departure_airport = da.iata 
+    JOIN flight_oltp.flight_airport aa ON fd.arrival_airport = aa.iata
+ORDER BY DepartDateKey;
 
 -- tijdelijke tabellen laten vallen
 DROP TABLE IF EXISTS flightdwh.numbers_small;
 DROP TABLE IF EXISTS flightdwh.numbers;
+SET FOREIGN_KEY_CHECKS = 1;
