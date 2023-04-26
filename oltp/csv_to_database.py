@@ -29,6 +29,20 @@ c.execute(f"CREATE DATABASE IF NOT EXISTS {DB_DATABASE}")
 c.close()
 conn.close()
 
+import os
+
+#verwijder alle nieuwlines uit alle files
+for file_name in os.listdir(CSV_FOLDER):
+    if file_name.endswith(".csv"):
+        file_path = os.path.join(CSV_FOLDER, file_name)
+        with open(file_path, "r") as file:
+            lines = file.readlines()
+
+        with open(file_path, "w") as file:
+            for line in lines:
+                if line.strip():
+                    file.write(line)
+
 try:
     # autocommit is zéér belangrijk.
     conn = mysql.connect(
