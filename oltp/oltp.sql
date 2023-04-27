@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS flight_oltp.flight_airport(
 
 -- Flight Airport Distance
 CREATE TABLE IF NOT EXISTS flight_oltp.flight_airport_distance(
-    airport1_iata CHAR(3) UNIQUE NOT NULL,
-    airport2_iata CHAR(3) UNIQUE NOT NULL,
+    airport1_iata CHAR(3) NOT NULL,
+    airport2_iata CHAR(3) NOT NULL,
     distance_flown INT,
     PRIMARY KEY (airport1_iata, airport2_iata),
     FOREIGN KEY (airport1_iata) REFERENCES flight_oltp.flight_airport (iata),
@@ -93,13 +93,6 @@ LINES TERMINATED BY '\n'
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET iata = @arrival_airport_iata_code;
 
--- Flight Airport Distance
-LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv"
-IGNORE INTO TABLE flight_oltp.flight_airport_distance
-FIELDS TERMINATED BY ","
-LINES TERMINATED BY "\n"
-(@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
-SET distance_flown=@distance_flown;
 
 -- Airline 
 LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv"
@@ -221,3 +214,13 @@ WHERE iata = 'TB';
 UPDATE flight_oltp.flight_airline
 SET name = 'Brussels Airlines'
 WHERE iata = 'SN';
+
+-- Flight Airport Distance
+LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv"
+IGNORE INTO TABLE flight_oltp.flight_airport_distance
+FIELDS TERMINATED BY ","
+LINES TERMINATED BY "\n"
+(@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
+SET distance_flown=@distance_flown,
+airport1_iata=(select departure_airport from flight_fixed_data where flight_number = @flight_number LIMIT 1),
+airport2_iata=(select arrival_airport from flight_fixed_data where flight_number = @flight_number LIMIT 1);
