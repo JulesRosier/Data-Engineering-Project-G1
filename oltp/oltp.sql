@@ -16,6 +16,16 @@ CREATE TABLE IF NOT EXISTS flight_oltp.flight_airport(
     PRIMARY KEY (iata)
 );
 
+-- Flight Airport Distance
+CREATE TABLE IF NOT EXISTS flight_oltp.flight_airport_distance(
+    airport1_iata CHAR(3) NOT NULL,
+    airport2_iata CHAR(3) NOT NULL,
+    distance_flown INT,
+    PRIMARY KEY (airport1_iata, airport2_iata),
+    FOREIGN KEY (airport1_iata) REFERENCES flight_oltp.flight_airport (iata),
+    FOREIGN KEY (airport2_iata) REFERENCES flight_oltp.flight_airport (iata)
+);
+
 -- Airline
 CREATE TABLE IF NOT EXISTS flight_oltp.flight_airline(
     iata CHAR(3) UNIQUE NOT NULL,
@@ -43,6 +53,16 @@ CREATE TABLE IF NOT EXISTS flight_oltp.flight_fixed_data (
   );
 
   CREATE INDEX idx_flight_nr ON flight_fixed_data(flight_number);
+
+  -- Airplane
+CREATE TABLE IF NOT EXISTS flight_oltp.flight_airplane(
+    airplane_type VARCHAR(30),
+    airplane_age INT,
+    total_seats INT,
+    flight_number VARCHAR(10) NOT NULL,
+    PRIMARY KEY (airplane_type),
+    FOREIGN KEY (flight_number) REFERENCES flight_oltp.flight_fixed_data (flight_number)
+);
 
 -- Flight Var Data
 CREATE TABLE IF NOT EXISTS flight_oltp.flight_var_data (
@@ -81,6 +101,13 @@ LINES TERMINATED BY "\n"
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET iata=@airline_iata_code;
 
+LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv"
+IGNORE INTO TABLE flight_oltp.flight_airplane
+FIELDS TERMINATED BY ","
+LINES TERMINATED BY "\n"
+(@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
+SET flight_number=@flight_number, airplane_type=@airplane_type, airplane_age=@airplane_age, total_seats=@total_seats;
+
 -- Fixed Flight Data 
 LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv"
 IGNORE INTO TABLE flight_oltp.flight_fixed_data
@@ -88,6 +115,16 @@ FIELDS TERMINATED BY ","
 LINES TERMINATED BY "\n"
 (@flight_id, @flight_number, @departure_date, @arrival_date, @departure_time, @arrival_time, @duration, @number_of_stops, @airline_iata_code, @departure_airport_iata_code, @arrival_airport_iata_code, @scrape_date, @available_seats, @price)
 SET flight_key=@flight_id, flight_number=@flight_number, number_of_stops=@number_of_stops, departure_date=@departure_date, arrival_date=@arrival_date, departure_time=@departure_time, arrival_time=@arrival_time, duration=@duration, departure_airport=@departure_airport_iata_code, arrival_airport=@arrival_airport_iata_code, operating_airline=@airline_iata_code;
+
+-- Flight Airport Distance
+LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\LoadInfo.csv"
+IGNORE INTO TABLE flight_oltp.flight_airport_distance
+FIELDS TERMINATED BY ","
+LINES TERMINATED BY "\n"
+(@flight_number, @airplane_type, @airplane_age, @total_seats, @distance_flown)
+SET distance_flown=@distance_flown,
+airport1_iata=(select departure_airport from flight_fixed_data where flight_number = @flight_number LIMIT 1),
+airport2_iata=(select arrival_airport from flight_fixed_data where flight_number = @flight_number LIMIT 1);
 
 -- Var Flight Data 
 LOAD DATA INFILE "C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\All.csv"
