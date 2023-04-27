@@ -9,12 +9,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirport
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirport(
-    -- AirportKey INT NOT NULL AUTO_INCREMENT, -- nog veranderen naar andere key dan auto_increment!
     AirportCode CHAR(3) UNIQUE NOT NULL,
     AirportName VARCHAR(50),
     City VARCHAR(50),
     Country VARCHAR(50),
-    DistanceFlown INT,
     PRIMARY KEY (AirportCode)
 );
 
@@ -34,17 +32,15 @@ WHERE iata NOT IN (SELECT DISTINCT AirportCode FROM FlightDWH.DimAirport);
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirline
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirline (
-  -- AirlineKey INT NOT NULL AUTO_INCREMENT, -- nog veranderen naar andere key dan auto_increment!
-  -- AirlineKey varchar(20) PRIMARY KEY,
-  AirlineCode CHAR(3) PRIMARY KEY,
+  AirlineCode CHAR(3) UNIQUE NOT NULL,
   AirlineName VARCHAR(50),
   AirlineContact VARCHAR(50),
   AirlineAddress VARCHAR(100)
+  PRIMARY KEY (AirportCode)
 );
 
 -- Update reeds bestaande records
 UPDATE FlightDWH.DimAirline dima SET 
--- AirlineKey = (SELECT(CONCAT(fa.iata, '-', fd.departure_date)) FROM flight_oltp.flight_fixed_data fd JOIN flight_oltp.flight_airline fa ON fd.operating_airline = fa.iata),
 AirlineCode = (SELECT iata FROM flight_oltp.flight_airline flighta WHERE flighta.iata = dima.AirlineCode),
 AirlineName = (SELECT name FROM flight_oltp.flight_airline flighta WHERE flighta.name = dima.AirlineName);
 
