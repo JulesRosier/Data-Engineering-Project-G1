@@ -188,6 +188,7 @@ Weekend         = IF( DATE_FORMAT( FullDateAlternateKey, "%W" ) IN ('Saturday','
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimFlight
 CREATE TABLE FlightDWH.DimFlight (
+  FlightKey VARCHAR(40) NOT NULL,
   FlightNumber VARCHAR(50),
   TotalNumberOfSeats SMALLINT,
   numberOfStops SMALLINT,
@@ -203,9 +204,10 @@ CREATE TABLE FlightDWH.DimFlight (
 
 -- Connectingflights momenteel nog null, data hebben we wss niet 
 
-INSERT INTO flightdwh.dimflight (FlightNumber, TotalNumberOfSeats,
+INSERT INTO flightdwh.dimflight (FlightKey, FlightNumber, TotalNumberOfSeats,
 numberOfStops, DepartureTime, ArrivalTime, Duration)
-SELECT fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops, fd.departure_date, fd.arrival_time, duration
+SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats,
+fd.number_of_stops, fd.departure_date, fd.arrival_time, duration
 FROM flight_oltp.flight_fixed_data fd
 LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
 -- WHERE NOT EXISTS (
