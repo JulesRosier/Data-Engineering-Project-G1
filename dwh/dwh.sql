@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS FlightDWH.DimAirline (
   AirlineCode CHAR(3) UNIQUE NOT NULL,
   AirlineName VARCHAR(50),
   AirlineContact VARCHAR(50),
-  AirlineAddress VARCHAR(100)
+  AirlineAddress VARCHAR(100),
   PRIMARY KEY (AirportCode)
 );
 
