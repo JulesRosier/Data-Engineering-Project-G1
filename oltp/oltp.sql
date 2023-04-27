@@ -138,7 +138,7 @@ SET scrape_date=@scrape_date, price=@price, seats_available=@available_seats, fl
 SET GLOBAL local_infile = "OFF";
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Seeding
+-- 4) Seeding
 UPDATE flight_oltp.flight_airport
 SET name = 'Brussels South Charleroi Airport', city = 'Charleroi', country = 'Belgium'
 WHERE iata = 'CRL';
