@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS FlightDWH.DimAirline (
   AirlineName VARCHAR(50),
   AirlineContact VARCHAR(50),
   AirlineAddress VARCHAR(100),
-  PRIMARY KEY (AirportCode)
+  PRIMARY KEY (AirlineCode)
 );
 
 -- Update reeds bestaande records
@@ -188,45 +188,45 @@ Weekend         = IF( DATE_FORMAT( FullDateAlternateKey, "%W" ) IN ('Saturday','
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimFlight
 CREATE TABLE FlightDWH.DimFlight (
-  FlightID INT NOT NULL PRIMARY KEY,
   FlightNumber VARCHAR(50),
   TotalNumberOfSeats SMALLINT,
   numberOfStops SMALLINT,
-  ConnectingFlights VARCHAR(255)
+  DepartureTime TIME,
+  ArrivalTime TIME,
+  Duration TIME,
+  ConnectingFlights VARCHAR(255),
+  StartDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+  EndDate DATETIME
 );
 
 -- dimflight vullen
 
 -- Connectingflights momenteel nog null, data hebben we wss niet 
 
-INSERT INTO flightdwh.dimflight (FlightID, FlightNumber, TotalNumberOfSeats, numberOfStops)
-SELECT vd.flight_id, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops
-FROM flight_oltp.flight_var_data vd 
-JOIN flight_oltp.flight_fixed_data fd ON vd.flight_key = fd.flight_key
-LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number
-WHERE NOT EXISTS (
-  SELECT 1 FROM flightdwh.dimflight df WHERE df.FlightID = vd.flight_id
-)
-ORDER BY vd.flight_id;
+INSERT INTO flightdwh.dimflight (FlightNumber, TotalNumberOfSeats,
+numberOfStops, DepartureTime, ArrivalTime, Duration)
+SELECT fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops, fd.departure_date, fd.arrival_time, duration
+FROM flight_oltp.flight_fixed_data fd
+LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
+-- WHERE NOT EXISTS (
+--   SELECT 1 FROM flightdwh.dimflight df WHERE df.FlightID = vd.flight_id
+-- )
+-- ORDER BY vd.flight_id;
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak Fact Table met foreign keys
 CREATE TABLE FlightDWH.FactFlight (
-  FlightKey VARCHAR(50),
+  FlightKey VARCHAR(50), -- FK ???
   AirlineKey VARCHAR(3),
   DepartDateKey DATE,
   ArrivalDateKey DATE,
   ScrapeDateKey DATE,
-  FlightID INT,
   DepartAirportKey VARCHAR(20),
   ArrivalAirportKey VARCHAR(20),
   TicketPrice DECIMAL(10,2),
   NumberOfSeatsAvailable INT,
-  DepartureTime TIME,
-  ArrivalTime TIME,
   FOREIGN KEY (AirlineKey) REFERENCES DimAirline(AirlineCode),
   FOREIGN KEY (DepartDateKey) REFERENCES DimDate(DateKey),
   FOREIGN KEY (ArrivalDateKey) REFERENCES DimDate(DateKey),
-  FOREIGN KEY (FlightID) REFERENCES DimFlight(FlightID),
   FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportCode),
   FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportCode),
   FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey)
@@ -238,13 +238,10 @@ INSERT INTO FlightDWH.FactFlight (
     DepartDateKey,
     ArrivalDateKey,
     ScrapeDateKey,
-    FlightID,
     DepartAirportKey,
     ArrivalAirportKey,
     TicketPrice,
-    NumberOfSeatsAvailable,
-    DepartureTime,
-    ArrivalTime
+    NumberOfSeatsAvailable
 )
 
 -- Fill fact flight
@@ -255,13 +252,10 @@ SELECT
     fd.departure_date AS DepartDateKey,
     fd.arrival_date AS ArrivalDateKey,
     vd.scrape_date AS ScrapeDateKey,
-    vd.flight_id AS FlightID,
     da.iata AS DepartAirportKey,
     aa.iata AS ArrivalAirportKey,
     vd.price AS TicketPrice,
-    vd.seats_available AS NumberOfSeatsAvailable,
-    fd.departure_time AS DepartureTime,
-    fd.arrival_time AS ArrivalTime
+    vd.seats_available AS NumberOfSeatsAvailable
 FROM 
     flight_oltp.flight_var_data vd 
     JOIN flight_oltp.flight_fixed_data fd ON vd.flight_key = fd.flight_key 
