@@ -195,8 +195,9 @@ CREATE TABLE FlightDWH.DimFlight (
   DepartureTime TIME,
   ArrivalTime TIME,
   Duration TIME,
-  StartDate DATE,
-  EndDate DATE
+  StartDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+  EndDate DATETIME DEFAULT '9999-12-31 23:59:59',
+  IsActive BOOLEAN DEFAULT true
 );
 
 -- dimflight vullen
@@ -204,13 +205,13 @@ CREATE TABLE FlightDWH.DimFlight (
 -- Connectingflights momenteel nog null, data hebben we wss niet 
 
 INSERT INTO flightdwh.dimflight (FlightID, FlightNumber, TotalNumberOfSeats,
-numberOfStops, DepartureTime, ArrivalTime, Duration, StartDate, EndDate)
+numberOfStops, DepartureTime, ArrivalTime, Duration)
 SELECT vd.flight_id, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats,
-fd.number_of_stops, fd.departure_time, fd.arrival_time, fd.duration, fd.departure_date, fd.arrival_date
+fd.number_of_stops, fd.departure_time, fd.arrival_time, fd.duration
 FROM flight_oltp.flight_fixed_data fd
 LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number
 JOIN flight_oltp.flight_var_data vd ON vd.flight_key = fd.flight_key ;
-
+ 
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak Fact Table met foreign keys
 CREATE TABLE FlightDWH.FactFlight (
