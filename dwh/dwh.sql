@@ -188,6 +188,7 @@ Weekend         = IF( DATE_FORMAT( FullDateAlternateKey, "%W" ) IN ('Saturday','
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimFlight
 CREATE TABLE FlightDWH.DimFlight (
+  DimFlightId int NOT NULL AUTO_INCREMENT,
   FlightKey VARCHAR(40) NOT NULL,
   FlightNumber VARCHAR(50),
   TotalNumberOfSeats SMALLINT,
@@ -197,19 +198,47 @@ CREATE TABLE FlightDWH.DimFlight (
   Duration TIME,
   ConnectingFlights VARCHAR(255),
   StartDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-  EndDate DATETIME
+  EndDate DATETIME DEFAULT '9999-12-31 23:59:59',
+  IsActive BOOLEAN DEFAULT true,
+  PRIMARY KEY (DimFlightId)
 );
+
 
 -- dimflight vullen
 
 -- Connectingflights momenteel nog null, data hebben we wss niet 
 
-INSERT INTO flightdwh.dimflight (FlightKey, FlightNumber, TotalNumberOfSeats,
-numberOfStops, DepartureTime, ArrivalTime, Duration)
-SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats,
-fd.number_of_stops, fd.departure_date, fd.arrival_time, duration
+-- INSERT INTO flightdwh.dimflight (FlightKey, FlightNumber, TotalNumberOfSeats,
+-- numberOfStops, DepartureTime, ArrivalTime, Duration)
+-- SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats,
+-- fd.number_of_stops, fd.departure_date, fd.arrival_time, duration
+-- FROM flight_oltp.flight_fixed_data fd
+-- LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
+
+INSERT INTO FlightDWH.DimFlight (FlightKey, FlightNumber, TotalNumberOfSeats, numberOfStops, DepartureTime, ArrivalTime, Duration)
+SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops, fd.departure_date, fd.arrival_time, fd.duration
 FROM flight_oltp.flight_fixed_data fd
-LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
+LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number
+ON DUPLICATE KEY UPDATE
+  FlightNumber = VALUES(FlightNumber),
+  TotalNumberOfSeats = VALUES(TotalNumberOfSeats),
+  numberOfStops = VALUES(numberOfStops),
+  DepartureTime = VALUES(DepartureTime),
+  ArrivalTime = VALUES(ArrivalTime),
+  Duration = VALUES(Duration),
+  ConnectingFlights = VALUES(ConnectingFlights),
+  IsActive = true,
+  EndDate = CASE
+              WHEN VALUES(FlightNumber) <> FlightNumber OR
+                   VALUES(TotalNumberOfSeats) <> TotalNumberOfSeats OR
+                   VALUES(numberOfStops) <> numberOfStops OR
+                   VALUES(DepartureTime) <> DepartureTime OR
+                   VALUES(ArrivalTime) <> ArrivalTime OR
+                   VALUES(Duration) <> Duration OR
+                   VALUES(ConnectingFlights) <> ConnectingFlights
+              THEN CURRENT_TIMESTAMP
+              ELSE EndDate
+            END;
 -- WHERE NOT EXISTS (
 --   SELECT 1 FROM flightdwh.dimflight df WHERE df.FlightID = vd.flight_id
 -- )
