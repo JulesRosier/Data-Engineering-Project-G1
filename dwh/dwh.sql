@@ -188,40 +188,38 @@ Weekend         = IF( DATE_FORMAT( FullDateAlternateKey, "%W" ) IN ('Saturday','
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimFlight
 CREATE TABLE FlightDWH.DimFlight (
-  FlightKey VARCHAR(40) NOT NULL,
+  FlightID INT NOT NULL PRIMARY KEY,
   FlightNumber VARCHAR(50),
   TotalNumberOfSeats SMALLINT,
   numberOfStops SMALLINT,
   DepartureTime TIME,
   ArrivalTime TIME,
   Duration TIME,
-  ConnectingFlights VARCHAR(255),
-  StartDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-  EndDate DATETIME
+  StartDate DATE,
+  EndDate DATE
 );
 
 -- dimflight vullen
 
 -- Connectingflights momenteel nog null, data hebben we wss niet 
 
-INSERT INTO flightdwh.dimflight (FlightKey, FlightNumber, TotalNumberOfSeats,
-numberOfStops, DepartureTime, ArrivalTime, Duration)
-SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats,
-fd.number_of_stops, fd.departure_date, fd.arrival_time, duration
+INSERT INTO flightdwh.dimflight (FlightID, FlightNumber, TotalNumberOfSeats,
+numberOfStops, DepartureTime, ArrivalTime, Duration, StartDate, EndDate)
+SELECT vd.flight_id, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats,
+fd.number_of_stops, fd.departure_time, fd.arrival_time, fd.duration, fd.departure_date, fd.arrival_date
 FROM flight_oltp.flight_fixed_data fd
-LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
--- WHERE NOT EXISTS (
---   SELECT 1 FROM flightdwh.dimflight df WHERE df.FlightID = vd.flight_id
--- )
--- ORDER BY vd.flight_id;
+LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number
+JOIN flight_oltp.flight_var_data vd ON vd.flight_key = fd.flight_key ;
+
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak Fact Table met foreign keys
 CREATE TABLE FlightDWH.FactFlight (
-  FlightKey VARCHAR(50), -- FK ???
+  FlightKey VARCHAR(50),
   AirlineKey INT,
   DepartDateKey INT,
   ArrivalDateKey INT,
   ScrapeDateKey INT,
+  FlightID INT,
   DepartAirportKey INT,
   ArrivalAirportKey INT,
   TicketPrice DECIMAL(10,2),
@@ -231,7 +229,8 @@ CREATE TABLE FlightDWH.FactFlight (
   FOREIGN KEY (ArrivalDateKey) REFERENCES DimDate(DateKey),
   FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportKey),
   FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportKey),
-  FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey)
+  FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey),
+  FOREIGN KEY (FlightID) REFERENCES DimFlight(FlightID)
 );
 
 INSERT INTO FlightDWH.FactFlight (
@@ -240,6 +239,7 @@ INSERT INTO FlightDWH.FactFlight (
     DepartDateKey,
     ArrivalDateKey,
     ScrapeDateKey,
+    FlightID,
     DepartAirportKey,
     ArrivalAirportKey,
     TicketPrice,
@@ -248,11 +248,12 @@ INSERT INTO FlightDWH.FactFlight (
 
 -- Fill fact flight
 SELECT
-	CONCAT(vd.flight_key,'-',vd.flight_id) AS FlightKey,
+	vd.flight_key AS FlightKey,
     (SELECT AirlineKey FROM FlightDWH.DimAirline WHERE AirlineCode = fa.iata) AS AirlineKey,
     UNIX_TIMESTAMP(fd.departure_date) AS DepartDateKey,
     UNIX_TIMESTAMP(fd.arrival_date) AS ArrivalDateKey,
     UNIX_TIMESTAMP(vd.scrape_date) AS ScrapeDateKey,
+    vd.flight_id AS FlightID,
     (SELECT AirportKey FROM FlightDWH.DimAirport WHERE AirportCode = da.iata) AS DepartAirportKey,
     (SELECT AirportKey FROM FlightDWH.DimAirport WHERE AirportCode = aa.iata) AS ArrivalAirportKey,
     vd.price AS TicketPrice,
