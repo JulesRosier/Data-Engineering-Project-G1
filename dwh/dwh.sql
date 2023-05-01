@@ -9,11 +9,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirport
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirport(
+	AirportKey INT AUTO_INCREMENT PRIMARY KEY,
     AirportCode CHAR(3) UNIQUE NOT NULL,
     AirportName VARCHAR(50),
     City VARCHAR(50),
-    Country VARCHAR(50),
-    PRIMARY KEY (AirportCode)
+    Country VARCHAR(50)
 );
 
 -- Update reeds bestaande records
@@ -32,11 +32,11 @@ WHERE iata NOT IN (SELECT DISTINCT AirportCode FROM FlightDWH.DimAirport);
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirline
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirline (
-  AirlineCode CHAR(3) UNIQUE NOT NULL,
-  AirlineName VARCHAR(50),
-  AirlineContact VARCHAR(50),
-  AirlineAddress VARCHAR(100),
-  PRIMARY KEY (AirlineCode)
+	AirlineKey INT AUTO_INCREMENT PRIMARY KEY,
+	AirlineCode CHAR(3) UNIQUE NOT NULL,
+	AirlineName VARCHAR(50),
+	AirlineContact VARCHAR(50),
+	AirlineAddress VARCHAR(100)
 );
 
 -- Update reeds bestaande records
@@ -89,7 +89,7 @@ LIMIT 1000000;
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimDate
 CREATE TABLE FlightDWH.DimDate (
-  DateKey DATE,
+  DateKey INT,
   FullDateAlternateKey DATETIME,
   EnglishDayNameOfWeek VARCHAR(10),
   DutchDayNameOfWeek VARCHAR(50),
@@ -116,7 +116,7 @@ ADD INDEX idx_DateKey (DateKey);
 
 -- Vul datekey en alternate key aan
 INSERT INTO FlightDWH.DimDate (DateKey, FullDateAlternateKey)
-SELECT DATE(date_add('2023-01-01', INTERVAL number DAY)), date_add('2023-01-01', INTERVAL number DAY)
+SELECT UNIX_TIMESTAMP(date_add('2023-01-01', INTERVAL number DAY)), date_add('2023-01-01', INTERVAL number DAY)
 FROM numbers
 WHERE DATE_ADD( '2023-01-01', INTERVAL number DAY ) BETWEEN '2023-01-01' AND '2023-12-31'
 ORDER BY number;
@@ -218,19 +218,19 @@ LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
 -- Maak Fact Table met foreign keys
 CREATE TABLE FlightDWH.FactFlight (
   FlightKey VARCHAR(50), -- FK ???
-  AirlineKey VARCHAR(3),
-  DepartDateKey DATE,
-  ArrivalDateKey DATE,
-  ScrapeDateKey DATE,
-  DepartAirportKey VARCHAR(20),
-  ArrivalAirportKey VARCHAR(20),
+  AirlineKey INT,
+  DepartDateKey INT,
+  ArrivalDateKey INT,
+  ScrapeDateKey INT,
+  DepartAirportKey INT,
+  ArrivalAirportKey INT,
   TicketPrice DECIMAL(10,2),
   NumberOfSeatsAvailable INT,
-  FOREIGN KEY (AirlineKey) REFERENCES DimAirline(AirlineCode),
+  FOREIGN KEY (AirlineKey) REFERENCES DimAirline(AirlineKey),
   FOREIGN KEY (DepartDateKey) REFERENCES DimDate(DateKey),
   FOREIGN KEY (ArrivalDateKey) REFERENCES DimDate(DateKey),
-  FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportCode),
-  FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportCode),
+  FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportKey),
+  FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportKey),
   FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey)
 );
 
@@ -249,13 +249,12 @@ INSERT INTO FlightDWH.FactFlight (
 -- Fill fact flight
 SELECT
 	CONCAT(vd.flight_key,'-',vd.flight_id) AS FlightKey,
-    -- CONCAT(fa.iata, '-', fd.departure_date) AS AirlineKey,
-    fa.iata AS AirlineKey,
-    fd.departure_date AS DepartDateKey,
-    fd.arrival_date AS ArrivalDateKey,
-    vd.scrape_date AS ScrapeDateKey,
-    da.iata AS DepartAirportKey,
-    aa.iata AS ArrivalAirportKey,
+    (SELECT AirlineKey FROM FlightDWH.DimAirline WHERE AirlineCode = fa.iata) AS AirlineKey,
+    UNIX_TIMESTAMP(fd.departure_date) AS DepartDateKey,
+    UNIX_TIMESTAMP(fd.arrival_date) AS ArrivalDateKey,
+    UNIX_TIMESTAMP(vd.scrape_date) AS ScrapeDateKey,
+    (SELECT AirportKey FROM FlightDWH.DimAirport WHERE AirportCode = da.iata) AS DepartAirportKey,
+    (SELECT AirportKey FROM FlightDWH.DimAirport WHERE AirportCode = aa.iata) AS ArrivalAirportKey,
     vd.price AS TicketPrice,
     vd.seats_available AS NumberOfSeatsAvailable
 FROM 
