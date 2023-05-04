@@ -4,8 +4,6 @@ USE FlightDWH;
 SET SQL_SAFE_UPDATES = 0;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- sterschema moet aangepast worden
-
 -- ----------------------------------------------------------------------------------------------------------
 -- Maak DimAirport
 CREATE TABLE IF NOT EXISTS FlightDWH.DimAirport(
