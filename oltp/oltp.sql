@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS flight_oltp.flight_airplane(
 CREATE TABLE IF NOT EXISTS flight_oltp.flight_var_data (
   flight_id INT NOT NULL auto_increment,
   scrape_date DATE,
-  price DECIMAL(4, 2),
+  price DECIMAL(10, 2),
   seats_available INT,
   flight_key VARCHAR(40) NOT NULL,
   PRIMARY KEY (flight_id),

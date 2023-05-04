@@ -163,7 +163,8 @@ CREATE TABLE FlightDWH.DimFlight (
   StartDate DATETIME DEFAULT CURRENT_TIMESTAMP,
   EndDate DATETIME DEFAULT '9999-12-31 23:59:59',
   IsActive BOOLEAN DEFAULT true,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE (FlightKey, StartDate)
 );
 
 CREATE TABLE FlightDWH.FactFlight (
@@ -183,8 +184,11 @@ CREATE TABLE FlightDWH.FactFlight (
   FOREIGN KEY (DepartAirportKey) REFERENCES DimAirport(AirportKey),
   FOREIGN KEY (ArrivalAirportKey) REFERENCES DimAirport(AirportKey),
   FOREIGN KEY (ScrapeDateKey) REFERENCES DimDate(DateKey),
-  FOREIGN KEY (FlightID) REFERENCES DimFlight(id)
+  FOREIGN KEY (FlightID) REFERENCES DimFlight(id),
+  PRIMARY KEY (FlightKey, ScrapeDateKey)
 );
+
+-- ALTER TABLE FlightDWH.FactFlight ADD UNIQUE `unique_index`(FlightKey, ScrapeDateKey);
 
 
 DROP TABLE IF EXISTS flightdwh.numbers_small;

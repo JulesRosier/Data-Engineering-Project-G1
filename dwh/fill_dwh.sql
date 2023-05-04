@@ -50,33 +50,51 @@ AirlineAddress = 'Airside Business Park, Swords, Co. Dublin,Ireland'
 WHERE AirlineCode = 'FR';
 
 -- DimFlight
-INSERT INTO FlightDWH.DimFlight (FlightKey, FlightNumber, TotalNumberOfSeats, numberOfStops, DepartureTime, ArrivalTime, Duration)
-SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops, fd.departure_date, fd.arrival_time, fd.duration
+INSERT IGNORE FlightDWH.DimFlight (FlightKey, FlightNumber, TotalNumberOfSeats, numberOfStops, DepartureTime, ArrivalTime, Duration)
+SELECT fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops, fd.departure_time, fd.arrival_time, fd.duration
 FROM flight_oltp.flight_fixed_data fd
 LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number
-ON DUPLICATE KEY UPDATE
-  FlightNumber = VALUES(FlightNumber),
-  TotalNumberOfSeats = VALUES(TotalNumberOfSeats),
-  numberOfStops = VALUES(numberOfStops),
-  DepartureTime = VALUES(DepartureTime),
-  ArrivalTime = VALUES(ArrivalTime),
-  FlightDWH.DimFlight.Duration = VALUES(Duration),
-  ConnectingFlights = VALUES(ConnectingFlights),
-  IsActive = true,
-  EndDate = CASE
-              WHEN VALUES(FlightNumber) <> FlightNumber OR
-                   VALUES(TotalNumberOfSeats) <> TotalNumberOfSeats OR
-                   VALUES(numberOfStops) <> numberOfStops OR
-                   VALUES(DepartureTime) <> DepartureTime OR
-                   VALUES(ArrivalTime) <> ArrivalTime OR
-                   VALUES(Duration) <> FlightDWH.DimFlight.Duration OR
-                   VALUES(ConnectingFlights) <> ConnectingFlights
-              THEN CURRENT_TIMESTAMP
-              ELSE EndDate
-            END;
--- FachtFlight
+WHERE NOT EXISTS
+(SELECT 1 FROM FlightDWH.DimFlight fdw WHERE fdw.FlightKey = fd.flight_key);
 
-INSERT INTO FlightDWH.FactFlight (
+DROP TABLE IF EXISTS FlightDWH.DimFlightTemp;
+CREATE TABLE FlightDWH.DimFlightTemp (
+    id int NOT NULL,
+    oltp_key VARCHAR(40),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO FlightDWH.DimFlightTemp (id, oltp_key)
+SELECT df.id, fd.flight_key
+FROM flight_oltp.flight_fixed_data fd
+JOIN FlightDWH.DimFlight df on df.FlightKey = fd.flight_key
+WHERE EXISTS
+(SELECT 1 FROM FlightDWH.DimFlight fdw WHERE fdw.FlightKey = fd.flight_key)
+AND (
+ df.Duration <> fd.duration OR
+ df.ArrivalTime <> fd.arrival_time OR
+ df.DepartureTime <> fd.departure_time OR
+ df.numberOfStops <> fd.number_of_stops
+) and df.IsActive = 1;
+
+UPDATE FlightDWH.DimFlight SET
+EndDate = CURRENT_TIMESTAMP - second(1),
+IsActive = false
+WHERE EXISTS (select 1 from FlightDWH.DimFlightTemp t WHERE FlightDWH.DimFlight.id = t.id);
+
+INSERT IGNORE FlightDWH.DimFlight (FlightKey, FlightNumber, TotalNumberOfSeats, numberOfStops, DepartureTime, ArrivalTime, Duration)
+select fd.flight_key, fd.flight_number, IFNULL(fa.total_seats, -1) as total_seats, fd.number_of_stops, fd.departure_time, fd.arrival_time, fd.duration
+from FlightDWH.DimFlightTemp t
+JOIN flight_oltp.flight_fixed_data fd ON fd.flight_key = t.oltp_key
+LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
+
+-- select * from FlightDWH.DimFlightTemp;
+-- select * from FlightDWH.DimFlight where IsActive = false;
+
+DROP TABLE IF EXISTS FlightDWH.DimFlightTemp;
+
+-- FachtFlight
+INSERT IGNORE INTO FlightDWH.FactFlight (
 	FlightKey,
     AirlineKey,
     DepartDateKey,
@@ -96,7 +114,7 @@ SELECT
     UNIX_TIMESTAMP(fd.departure_date) AS DepartDateKey,
     UNIX_TIMESTAMP(fd.arrival_date) AS ArrivalDateKey,
     UNIX_TIMESTAMP(vd.scrape_date) AS ScrapeDateKey,
-    vd.flight_id AS FlightID,
+    df.id AS FlightID,
     (SELECT AirportKey FROM FlightDWH.DimAirport WHERE AirportCode = da.iata) AS DepartAirportKey,
     (SELECT AirportKey FROM FlightDWH.DimAirport WHERE AirportCode = aa.iata) AS ArrivalAirportKey,
     vd.price AS TicketPrice,
@@ -107,6 +125,8 @@ FROM
     JOIN flight_oltp.flight_airline fa ON fd.operating_airline = fa.iata 
     JOIN flight_oltp.flight_airport da ON fd.departure_airport = da.iata 
     JOIN flight_oltp.flight_airport aa ON fd.arrival_airport = aa.iata
+    JOIN FlightDWH.DimFlight df ON fd.flight_key = df.FlightKey
+    WHERE df.IsActive = 1;
 ORDER BY DepartDateKey;
 
 SET FOREIGN_KEY_CHECKS = 1;
