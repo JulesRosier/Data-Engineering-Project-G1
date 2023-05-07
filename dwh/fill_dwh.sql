@@ -126,7 +126,7 @@ FROM
     JOIN flight_oltp.flight_airport da ON fd.departure_airport = da.iata 
     JOIN flight_oltp.flight_airport aa ON fd.arrival_airport = aa.iata
     JOIN FlightDWH.DimFlight df ON fd.flight_key = df.FlightKey
-    WHERE df.IsActive = 1;
+    WHERE df.IsActive = 1
 ORDER BY DepartDateKey;
 
 SET FOREIGN_KEY_CHECKS = 1;
