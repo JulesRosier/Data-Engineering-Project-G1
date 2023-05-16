@@ -88,9 +88,6 @@ from FlightDWH.DimFlightTemp t
 JOIN flight_oltp.flight_fixed_data fd ON fd.flight_key = t.oltp_key
 LEFT JOIN flight_oltp.flight_airplane fa ON fa.flight_number = fd.flight_number;
 
--- select * from FlightDWH.DimFlightTemp;
--- select * from FlightDWH.DimFlight where IsActive = false;
-
 DROP TABLE IF EXISTS FlightDWH.DimFlightTemp;
 
 -- FachtFlight
