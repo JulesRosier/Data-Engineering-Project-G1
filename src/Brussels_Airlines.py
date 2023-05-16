@@ -1,5 +1,4 @@
 import logging
-from pprint import pprint
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
@@ -68,8 +67,6 @@ def get_data(destinations: list[str], dates: list[datetime.date]) -> dict:
 
             data = driver.execute_script('return clientSideData')['tpi']
 
-            # pprint(data)
-
             try:
                 for flight in data['availabilities']:
                     operating_airline = flight['segments'][0]['operatingAirline']['name']
@@ -115,10 +112,10 @@ def get_data(destinations: list[str], dates: list[datetime.date]) -> dict:
                         flight_data_obj.save(force_insert=True)
             except Exception as e:
                 logger.error(e)
-                # try:
-                #     error_div = driver.find_element(
-                #         By.CSS_SELECTOR, "div.message-error")
-                #     print('ERROR', error_div.text)
-                # except:
-                #     print('iets anders dan een site error ging miss')
+                try:
+                    error_div = driver.find_element(
+                        By.CSS_SELECTOR, "div.message-error")
+                    print('ERROR', error_div.text)
+                except:
+                    print('iets anders dan een site error ging miss')
     return flights

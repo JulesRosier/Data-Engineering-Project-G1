@@ -8,7 +8,6 @@ import Ryanair_Scrape
 import Brussels_Airlines
 import time
 import sys
-from pprint import pprint
 from repository import connect_db, close_db, seed_db
 
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']

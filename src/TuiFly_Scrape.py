@@ -10,7 +10,6 @@ from proxies import get_valid_proxy
 
 from repository import Flight
 from repository import FlightData
-# from pprint import pprint
 
 # CONSTS
 DEPARTS = ['BRU', 'ANR', 'OST', 'LGG']
