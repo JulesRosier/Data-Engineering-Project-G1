@@ -85,7 +85,6 @@ def connect_db():
 
 ARIVE = ['AGP', 'CFU', 'HER', 'RHO', 'BDS', 'NAP', 'PMO', 'FAO', 'ALC', 'IBZ', 'PMI', 'TFS']
 DEPART = ['BRU', 'ANR', 'OST', 'LGG', 'CRL']
-# URL = "https://www.ryanair.com/api/views/locate/5/airports/nl/{code}"
 URL = "https://kuvsche4de.execute-api.eu-central-1.amazonaws.com/prod/airportname?market=BE&airportCode={code}&locale=nl"
 HEADER = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'}
 
@@ -94,17 +93,13 @@ def seed_db():
    Airline.get_or_create(id = 1, name ='Ryanair')
    Airline.get_or_create(id = 2, name ='BrusselsAirlines')
    Airline.get_or_create(id = 3, name ='TuiFly')
-   # Airline.get_or_create(id = 4, name ='Transavia')
+   Airline.get_or_create(id = 4, name ='Transavia')
 
    for a in (ARIVE + DEPART):
       if not Airport.select().where(Airport.code == a).exists():
          response = requests.get(URL.format(code=a), headers=HEADER)
          full_name = None
          if response.status_code == 200:
-            # json_data = json.loads(response.content)
-            # pprint(json_data)
-            # full_name = json_data['city']['name']
-            # print(response.content.decode("utf-8") )
             full_name = response.content.decode("utf-8")[1:-1]
          Airport.create(code = a,
                         full_name = full_name)
